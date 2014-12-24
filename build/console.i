@@ -1,5 +1,0 @@
-# 1 "c:/devl/prboom3ds/arm11/source/console.c"
-# 1 "c:\\devl\\prboom3ds\\build//"
-# 1 "<built-in>"
-# 1 "<command-line>"
-# 1 "c:/devl/prboom3ds/arm11/source/console.c"
