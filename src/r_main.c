@@ -661,7 +661,7 @@ void R_RenderPlayerView(player_t* player)
 
 	R_SetupFrame(player);
 
-	if (renderframe&1) {
+	if (renderframe) {
 		ang = -ang;
 		sep = -sep;
 	}
@@ -684,8 +684,6 @@ void R_RenderPlayerView(player_t* player)
 
 
 	R_RestoreInterpolations();
-
-	renderframe++;
 }
 #else
 void R_RenderPlayerView(player_t* player)

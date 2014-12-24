@@ -207,6 +207,7 @@ static void D_Wipe(void)
 gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern boolean setsizeneeded;
 extern int     showMessages;
+extern int renderframe;
 
 void D_Display (void)
 {
@@ -215,13 +216,14 @@ void D_Display (void)
   static gamestate_t oldgamestate = -1;
   boolean wipe;
   boolean viewactive = false, isborder = false;
-  boolean once = false;
 
   if (nodrawers)                    // for comparative timing / profiling
     return;
 
   if (!I_StartDisplay())
     return;
+
+  renderframe = 0;
 
 drawagain:
 
@@ -322,13 +324,13 @@ drawagain:
 
   // normal update
   if (!wipe || (V_GetMode() == VID_MODEGL)) {
-	  if (once) {
+	  if (renderframe) {
 		  copy_screen(GFX_LEFT);
 		  I_FinishUpdate();              // page flip or blit buffer
 	  }
 	  else {
 		  copy_screen(GFX_RIGHT);
-		  once = 1;
+		  renderframe = 1;
 		  goto drawagain;
 	  }
   } else {
