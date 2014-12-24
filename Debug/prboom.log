@@ -1,0 +1,10 @@
+﻿Build started 12/24/2014 5:01:46 PM.
+     1>Project "C:\devl\prboom3ds\prboom.vcxproj" on node 2 (Build target(s)).
+     1>Build:
+         make -r 2>&1 | sed -e 's/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/
+         make[1]: `/c/devl/prboom3ds/prboom3ds.3dsx' is up to date.
+     1>Done Building Project "C:\devl\prboom3ds\prboom.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:00.31

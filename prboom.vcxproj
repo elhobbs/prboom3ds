@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{528B72CF-E56E-4171-9993-C0B5F9426255}</ProjectGuid>
+    <Keyword>MakeFileProj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Makefile</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <NMakeBuildCommandLine>make -r 2&gt;&amp;1 | sed -e %27s/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/</NMakeBuildCommandLine>
+    <NMakeOutput>prboom.nds</NMakeOutput>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make clean &amp;&amp; make -r 2&gt;&amp;1 | sed -e %27s/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>ARM11;_HAVE_STDC</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;c:\devl\prboom3ds\arm9\include;c:\devl\prboom3ds\src</NMakeIncludeSearchPath>
+    <IncludePath />
+    <ReferencePath />
+    <LibraryPath />
+    <SourcePath />
+    <ExcludePath />
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <NMakeBuildCommandLine>make -r 2&gt;&amp;1 | sed -e %27s/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/</NMakeBuildCommandLine>
+    <NMakeOutput>prboom.nds</NMakeOutput>
+    <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
+    <NMakeReBuildCommandLine>make clean &amp;&amp; make -r 2&gt;&amp;1 | sed -e %27s/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/</NMakeReBuildCommandLine>
+    <NMakePreprocessorDefinitions>ARM9;_HAVE_STDC;WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
+    <NMakeIncludeSearchPath>c:\devkitPro\libnds\include;C:\devkitPro\devkitARM\arm-none-eabi\include;$(NMakeIncludeSearchPath)</NMakeIncludeSearchPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="arm11\source\3ds_mix.c" />
+    <ClCompile Include="arm11\source\3ds_sound.c" />
+    <ClCompile Include="arm11\source\console.c" />
+    <ClCompile Include="arm11\source\file.c" />
+    <ClCompile Include="arm9\source\ds_main.c" />
+    <ClCompile Include="arm9\source\ds_render.c" />
+    <ClCompile Include="arm9\source\ds_sys.c" />
+    <ClCompile Include="arm9\source\ds_textures.c" />
+    <ClCompile Include="arm9\source\ds_vid.c" />
+    <ClCompile Include="arm9\source\ds_vram.c" />
+    <ClCompile Include="arm9\source\geometry.c" />
+    <ClCompile Include="arm9\source\musplay.c" />
+    <ClCompile Include="arm9\source\polylib.c" />
+    <ClCompile Include="src\am_map.c" />
+    <ClCompile Include="src\doomdef.c" />
+    <ClCompile Include="src\doomstat.c" />
+    <ClCompile Include="src\dstrings.c" />
+    <ClCompile Include="src\d_client.c" />
+    <ClCompile Include="src\d_deh.c" />
+    <ClCompile Include="src\d_items.c" />
+    <ClCompile Include="src\d_main.c" />
+    <ClCompile Include="src\f_finale.c" />
+    <ClCompile Include="src\f_wipe.c" />
+    <ClCompile Include="src\g_game.c" />
+    <ClCompile Include="src\hu_lib.c" />
+    <ClCompile Include="src\hu_stuff.c" />
+    <ClCompile Include="src\info.c" />
+    <ClCompile Include="src\lprintf.c" />
+    <ClCompile Include="src\md5.c" />
+    <ClCompile Include="src\m_argv.c" />
+    <ClCompile Include="src\m_bbox.c" />
+    <ClCompile Include="src\m_cheat.c" />
+    <ClCompile Include="src\m_menu.c" />
+    <ClCompile Include="src\m_misc.c" />
+    <ClCompile Include="src\m_random.c" />
+    <ClCompile Include="src\p_ceilng.c" />
+    <ClCompile Include="src\p_checksum.c" />
+    <ClCompile Include="src\p_doors.c" />
+    <ClCompile Include="src\p_enemy.c" />
+    <ClCompile Include="src\p_floor.c" />
+    <ClCompile Include="src\p_genlin.c" />
+    <ClCompile Include="src\p_inter.c" />
+    <ClCompile Include="src\p_lights.c" />
+    <ClCompile Include="src\p_map.c" />
+    <ClCompile Include="src\p_maputl.c" />
+    <ClCompile Include="src\p_mobj.c" />
+    <ClCompile Include="src\p_plats.c" />
+    <ClCompile Include="src\p_pspr.c" />
+    <ClCompile Include="src\p_saveg.c" />
+    <ClCompile Include="src\p_setup.c" />
+    <ClCompile Include="src\p_sight.c" />
+    <ClCompile Include="src\p_spec.c" />
+    <ClCompile Include="src\p_switch.c" />
+    <ClCompile Include="src\p_telept.c" />
+    <ClCompile Include="src\p_tick.c" />
+    <ClCompile Include="src\p_user.c" />
+    <ClCompile Include="src\r_bsp.c" />
+    <ClCompile Include="src\r_data.c" />
+    <ClCompile Include="src\r_demo.c" />
+    <ClCompile Include="src\r_draw.c" />
+    <ClCompile Include="src\r_filter.c" />
+    <ClCompile Include="src\r_fps.c" />
+    <ClCompile Include="src\r_main.c" />
+    <ClCompile Include="src\r_patch.c" />
+    <ClCompile Include="src\r_plane.c" />
+    <ClCompile Include="src\r_segs.c" />
+    <ClCompile Include="src\r_sky.c" />
+    <ClCompile Include="src\r_things.c" />
+    <ClCompile Include="src\sounds.c" />
+    <ClCompile Include="src\st_lib.c" />
+    <ClCompile Include="src\st_stuff.c" />
+    <ClCompile Include="src\s_sound.c.unused" />
+    <ClCompile Include="src\tables.c" />
+    <ClCompile Include="src\version.c" />
+    <ClCompile Include="src\v_video.c" />
+    <ClCompile Include="src\wi_stuff.c" />
+    <ClCompile Include="src\w_memcache.c" />
+    <ClCompile Include="src\w_wad.c" />
+    <ClCompile Include="src\z_bmalloc.c" />
+    <ClCompile Include="src\z_zone.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="arm11\include\font8x8_basic.h" />
+    <ClInclude Include="arm9\include\config.h" />
+    <ClInclude Include="arm9\include\ds_mix.h" />
+    <ClInclude Include="arm9\include\ds_textures.h" />
+    <ClInclude Include="arm9\include\ds_vram.h" />
+    <ClInclude Include="arm9\source\geometry.h" />
+    <ClInclude Include="arm9\source\musplay.h" />
+    <ClInclude Include="src\am_map.h" />
+    <ClInclude Include="src\doomdata.h" />
+    <ClInclude Include="src\doomdef.h" />
+    <ClInclude Include="src\doomstat.h" />
+    <ClInclude Include="src\doomtype.h" />
+    <ClInclude Include="src\dstrings.h" />
+    <ClInclude Include="src\d_deh.h" />
+    <ClInclude Include="src\d_englsh.h" />
+    <ClInclude Include="src\d_event.h" />
+    <ClInclude Include="src\d_items.h" />
+    <ClInclude Include="src\d_main.h" />
+    <ClInclude Include="src\d_net.h" />
+    <ClInclude Include="src\d_player.h" />
+    <ClInclude Include="src\d_think.h" />
+    <ClInclude Include="src\d_ticcmd.h" />
+    <ClInclude Include="src\f_finale.h" />
+    <ClInclude Include="src\f_wipe.h" />
+    <ClInclude Include="src\g_game.h" />
+    <ClInclude Include="src\hu_lib.h" />
+    <ClInclude Include="src\hu_stuff.h" />
+    <ClInclude Include="src\info.h" />
+    <ClInclude Include="src\i_main.h" />
+    <ClInclude Include="src\i_network.h" />
+    <ClInclude Include="src\i_sound.h" />
+    <ClInclude Include="src\i_system.h" />
+    <ClInclude Include="src\i_video.h" />
+    <ClInclude Include="src\lprintf.h" />
+    <ClInclude Include="src\md5.h" />
+    <ClInclude Include="src\m_argv.h" />
+    <ClInclude Include="src\m_bbox.h" />
+    <ClInclude Include="src\m_cheat.h" />
+    <ClInclude Include="src\m_fixed.h" />
+    <ClInclude Include="src\m_menu.h" />
+    <ClInclude Include="src\m_misc.h" />
+    <ClInclude Include="src\m_random.h" />
+    <ClInclude Include="src\m_swap.h" />
+    <ClInclude Include="src\protocol.h" />
+    <ClInclude Include="src\p_checksum.h" />
+    <ClInclude Include="src\p_enemy.h" />
+    <ClInclude Include="src\p_inter.h" />
+    <ClInclude Include="src\p_map.h" />
+    <ClInclude Include="src\p_maputl.h" />
+    <ClInclude Include="src\p_mobj.h" />
+    <ClInclude Include="src\p_pspr.h" />
+    <ClInclude Include="src\p_saveg.h" />
+    <ClInclude Include="src\p_setup.h" />
+    <ClInclude Include="src\p_spec.h" />
+    <ClInclude Include="src\p_tick.h" />
+    <ClInclude Include="src\p_user.h" />
+    <ClInclude Include="src\r_bsp.h" />
+    <ClInclude Include="src\r_data.h" />
+    <ClInclude Include="src\r_defs.h" />
+    <ClInclude Include="src\r_demo.h" />
+    <ClInclude Include="src\r_draw.h" />
+    <ClInclude Include="src\r_filter.h" />
+    <ClInclude Include="src\r_fps.h" />
+    <ClInclude Include="src\r_main.h" />
+    <ClInclude Include="src\r_patch.h" />
+    <ClInclude Include="src\r_plane.h" />
+    <ClInclude Include="src\r_segs.h" />
+    <ClInclude Include="src\r_sky.h" />
+    <ClInclude Include="src\r_state.h" />
+    <ClInclude Include="src\r_things.h" />
+    <ClInclude Include="src\sounds.h" />
+    <ClInclude Include="src\st_lib.h" />
+    <ClInclude Include="src\st_stuff.h" />
+    <ClInclude Include="src\s_sound.h" />
+    <ClInclude Include="src\tables.h" />
+    <ClInclude Include="src\version.h" />
+    <ClInclude Include="src\v_video.h" />
+    <ClInclude Include="src\wi_stuff.h" />
+    <ClInclude Include="src\w_wad.h" />
+    <ClInclude Include="src\z_bmalloc.h" />
+    <ClInclude Include="src\z_zone.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="arm9\Makefile" />
+    <None Include="Makefile" />
+    <None Include="src\r_drawcolpipeline.inl" />
+    <None Include="src\r_drawcolumn.inl" />
+    <None Include="src\r_drawflush.inl" />
+    <None Include="src\r_drawspan.inl" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
