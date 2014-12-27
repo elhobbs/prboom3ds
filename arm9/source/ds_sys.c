@@ -12,8 +12,49 @@
 #include "lprintf.h"
 #include "r_fps.h"
 #include "m_argv.h"
+#include <dirent.h>
 
 #define timers2ms(tlow,thigh) ((tlow>>5)+(thigh<<11))
+
+int stat_3ds(const char *fname, struct stat *st)
+{
+	FILE* file;
+	DIR *dir;
+
+	/* The best we can do is try to open the file readonly.  If it exists,
+	then we can guess a few things about it.  */
+	if ((file = fopen(fname, "rb")) == 0) {
+		//maybe it is a directory?
+		if ((dir = opendir(fname)) != 0) {
+			memset(st, 0, sizeof(*st));
+			st->st_mode = S_IFDIR | S_IREAD;
+			st->st_blksize = 1024;
+			closedir(dir);
+		}
+		return -1;
+	}
+
+	memset(st, 0, sizeof(*st));
+	st->st_mode = S_IFREG | S_IREAD;
+	st->st_blksize = 1024;
+	fclose(file); /* Not interested in the error.  */
+	return 0;
+}
+
+int access_3ds(const char *fn, int flags) {
+	struct stat s;
+	if (stat_3ds(fn, &s))
+		return -1;
+	if (s.st_mode & S_IFDIR)
+		return 0;
+	if (flags & W_OK)
+	{
+		if (s.st_mode & S_IWRITE)
+			return 0;
+		return -1;
+	}
+	return 0;
+}
 
 // Handy DSdev.org timer functions
 u32 GetTicks(void)
@@ -113,9 +154,9 @@ char* I_FindFile(const char* wfname, const char* ext)
 			s ? s : "", (s && !HasTrailingSlash(s)) ? "/" : "",
 			wfname);
 
-		if (access(p, F_OK))
+		if (access_3ds(p, F_OK))
 			strcat(p, ext);
-		if (!access(p, F_OK)) {
+		if (!access_3ds(p, F_OK)) {
 			lprintf(LO_INFO, " found %s\n", p);
 			return p;
 		}

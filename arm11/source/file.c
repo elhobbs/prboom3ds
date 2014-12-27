@@ -1,3 +1,4 @@
+#if 0
 #include <3ds.h>
 #include <unistd.h>
 #include <string.h>
@@ -469,3 +470,4 @@ bool SD_init () {
 
 	return true;
 }
+#endif

@@ -1064,7 +1064,7 @@ void M_ScreenShot(void)
   int        startshot;
   int        success = 0;
 
-  if (!access(SCREENSHOT_DIR,2))
+  if (!access_3ds(SCREENSHOT_DIR, 2))
   {
     startshot = shot; // CPhipps - prevent infinite loop
 
@@ -1073,9 +1073,9 @@ void M_ScreenShot(void)
       lbmname = realloc(lbmname, size+1);
       doom_snprintf(lbmname, size+1, "%s/doom%02d" SCREENSHOT_EXT, SCREENSHOT_DIR, shot);
       shot++;
-    } while (!access(lbmname,0) && (shot != startshot) && (shot < 10000));
+	} while (!access_3ds(lbmname, 0) && (shot != startshot) && (shot < 10000));
 
-    if (access(lbmname,0))
+	if (access_3ds(lbmname, 0))
     {
       S_StartSound(NULL,gamemode==commercial ? sfx_radio : sfx_tink);
       M_DoScreenShot(lbmname); // cph

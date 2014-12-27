@@ -56,7 +56,8 @@ static void sys_init() {
 
 	//con_init();
 	consoleInit(GFX_BOTTOM, 0);
-	SD_init();
+	//SD_init();
+	sdmcInit();
 	switchConsole();
 	gfxFlushBuffers();
 	gfxSwapBuffers();

@@ -658,7 +658,7 @@ static const char *D_dehout(void)
 // CPhipps - const char* for iwadname, made static
 static void CheckIWAD(const char *iwadname,GameMode_t *gmode,boolean *hassec)
 {
-  if ( !access (iwadname,R_OK) )
+  if ( !access_3ds (iwadname,R_OK) )
   {
     int ud=0,rg=0,sw=0,cm=0,sc=0;
     FILE* fp;
@@ -1750,10 +1750,10 @@ static void D_DoomMainSetup(void)
     {
       file = realloc(file, strlen(myargv[p])+4+1);
       AddDefaultExtension(strcpy(file, myargv[p]), ".bex");
-      if (access(file, F_OK))  // nope
+	  if (access_3ds(file, F_OK))  // nope
       {
         AddDefaultExtension(strcpy(file, myargv[p]), ".deh");
-        if (access(file, F_OK))  // still nope
+		if (access_3ds(file, F_OK))  // still nope
           I_Error("D_DoomMainSetup: Cannot find .deh or .bex file named %s",
                   myargv[p]);
       }
