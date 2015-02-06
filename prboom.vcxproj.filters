@@ -234,9 +234,6 @@
     <ClCompile Include="src\z_zone.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\s_sound.c.unused">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="arm9\source\ds_sys.c">
       <Filter>Arm9\source</Filter>
     </ClCompile>
@@ -274,6 +271,21 @@
       <Filter>Arm11\source</Filter>
     </ClCompile>
     <ClCompile Include="arm11\source\3ds_sound.c">
+      <Filter>Arm11\source</Filter>
+    </ClCompile>
+    <ClCompile Include="arm11\source\dbopl.c">
+      <Filter>Arm11\source</Filter>
+    </ClCompile>
+    <ClCompile Include="arm11\source\Mixer_3ds.cpp">
+      <Filter>Arm11\source</Filter>
+    </ClCompile>
+    <ClCompile Include="arm11\source\musplay.c">
+      <Filter>Arm11\source</Filter>
+    </ClCompile>
+    <ClCompile Include="arm11\source\opl.c">
+      <Filter>Arm11\source</Filter>
+    </ClCompile>
+    <ClCompile Include="arm11\source\opl_queue.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
   </ItemGroup>
@@ -519,6 +531,24 @@
       <Filter>Arm9\include</Filter>
     </ClInclude>
     <ClInclude Include="arm11\include\font8x8_basic.h">
+      <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\dbopl.h">
+      <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\Mixer_3ds.h">
+      <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\MixerHardware.h">
+      <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\musplay.h">
+      <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\opl.h">
+      <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\opl_queue.h">
       <Filter>Arm11\include</Filter>
     </ClInclude>
   </ItemGroup>

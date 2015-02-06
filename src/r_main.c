@@ -654,8 +654,8 @@ void R_RenderPlayerView(player_t* player)
 	int x = viewx;
 	int y = viewy;
 	fixed_t vsin, vcos;
-	float slideamt = 0.5f - *slider;
-	int sep = (slideamt*20.0f);
+	float slideamt = 0.0f - *slider;
+	int sep = (slideamt*5.0f);
 	angle_t ang = (slideamt*ANG5);
 	void copy_screen(int side);
 

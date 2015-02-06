@@ -101,7 +101,9 @@ typedef struct  {
 
 	//struct driverBlock	*driver;
 	OPLdata				data;
-} musicBlock;
+} __musicBlock;
+
+typedef volatile __musicBlock musicBlock;
 
 #define ST_EMPTY	0		// music block is empty
 #define ST_STOPPED	1		// music block is used but not playing
@@ -143,6 +145,7 @@ enum MUSctrl {
 	ctrlResetCtrls
 };
 
+#pragma pack(push,1)
 typedef struct {
 	char			ID[4];		// identifier "MUS" 0x1A
 	unsigned short	scoreLen;
@@ -152,4 +155,22 @@ typedef struct {
 	unsigned short  instrCnt;
 	unsigned short	dummy2;
 	//	unsigned short	instruments[];
-} PACKEDATTR mus_header_t;
+} mus_header_t;
+#pragma pack(pop)
+
+#ifndef byte
+typedef unsigned char byte;
+typedef unsigned char u8;
+#endif
+
+typedef enum {
+	MUS_IDLE,
+	MUS_PLAYING,
+	MUS_EXIT
+} MUS_STATE;
+
+void mus_init();
+void mus_exit();
+void mus_play_music(u8 *data);
+void mus_stop_music();
+void mus_play_timer(void);

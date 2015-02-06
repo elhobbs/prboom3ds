@@ -365,59 +365,48 @@ static const char *auto_shot_fname;
 
 static void D_DoomLoop(void)
 {
-	APP_STATUS status;
-	while ((status = aptGetStatus()) != APP_EXITING)
+	while (aptMainLoop())
 	{
-		if (status == APP_RUNNING)
+		WasRenderedInTryRunTics = false;
+		// frame syncronous IO operations
+		I_StartFrame();
+
+		if (ffmap == gamemap) ffmap = 0;
+
+		// process one or more tics
+		if (singletics)
 		{
-			WasRenderedInTryRunTics = false;
-			// frame syncronous IO operations
-			I_StartFrame();
+			I_StartTic();
+			G_BuildTiccmd(&netcmds[consoleplayer][maketic%BACKUPTICS]);
+			if (advancedemo)
+				D_DoAdvanceDemo();
+			M_Ticker();
+			G_Ticker();
+			P_Checksum(gametic);
+			gametic++;
+			maketic++;
+		}
+		else
+			TryRunTics(); // will run at least one tic
 
-			if (ffmap == gamemap) ffmap = 0;
-
-			// process one or more tics
-			if (singletics)
-			{
-				I_StartTic();
-				G_BuildTiccmd(&netcmds[consoleplayer][maketic%BACKUPTICS]);
-				if (advancedemo)
-					D_DoAdvanceDemo();
-				M_Ticker();
-				G_Ticker();
-				P_Checksum(gametic);
-				gametic++;
-				maketic++;
-			}
-			else
-				TryRunTics(); // will run at least one tic
-
-			// killough 3/16/98: change consoleplayer to displayplayer
-			//if (players[displayplayer].mo) // cph 2002/08/10
+		// killough 3/16/98: change consoleplayer to displayplayer
+		//printf("frame: %08x %d %d\n", players[displayplayer].mo, displayplayer, consoleplayer);
+		//if (players[displayplayer].mo) // cph 2002/08/10
 			S_UpdateSounds(players[displayplayer].mo);// move positional sounds
 
-			if (V_GetMode() == VID_MODEGL ?
-				!movement_smooth || !WasRenderedInTryRunTics :
-				!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate
-				)
-			{
-				// Update display, next frame, with current state.
-				D_Display();
-			}
+		if (V_GetMode() == VID_MODEGL ?
+			!movement_smooth || !WasRenderedInTryRunTics :
+			!movement_smooth || !WasRenderedInTryRunTics || gamestate != wipegamestate
+			)
+		{
+			// Update display, next frame, with current state.
+			D_Display();
+		}
 
-			// CPhipps - auto screenshot
-			if (auto_shot_fname && !--auto_shot_count) {
-				auto_shot_count = auto_shot_time;
-				M_DoScreenShot(auto_shot_fname);
-			}
-		}
-		else if (status == APP_SUSPENDING)
-		{
-			aptReturnToMenu();
-		}
-		else if (status == APP_SLEEPMODE)
-		{
-			aptWaitStatusEvent();
+		// CPhipps - auto screenshot
+		if (auto_shot_fname && !--auto_shot_count) {
+			auto_shot_count = auto_shot_time;
+			M_DoScreenShot(auto_shot_fname);
 		}
 		gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
@@ -859,6 +848,8 @@ static char* ds_game_choose() {
 		}
 		// Show cursor
 		iprintf("\x1b[%d;0H*", pos + 3);
+		gfxFlushBuffers();
+		gfxSwapBuffers();
 
 		// Power saving loop. Only poll the keys once per frame and sleep the CPU if there is nothing else to do
 		do {
@@ -891,6 +882,8 @@ static char* ds_game_choose() {
 			// Clear the screen
 			iprintf("\x1b[2J");
 			printf(" Starting %s\n", standard_iwads_name[wads_found[pos]]);
+			gfxFlushBuffers();
+			gfxSwapBuffers();
 			return wads_found_path[wads_found[pos]];
 		}
 	}

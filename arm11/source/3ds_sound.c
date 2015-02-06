@@ -88,6 +88,7 @@ void S_ChangeMusic(int music_id, int looping) {
 		sprintf(namebuf, "d_%s", music->name);
 		music->lumpnum = W_GetNumForName(namebuf);
 	}
+	printf("mus: d_%s\n", music->name);
 	music->data = W_CacheLumpNum(music->lumpnum);
 	mus_play_music(music->data);
 
@@ -105,6 +106,9 @@ void S_SetMusicVolume(int volume) {
 
 void S_Start(void) {
 	int mnum;
+
+	if (!mus_card || nomusicparm)
+		return;
 
 	// kill all playing sounds at start of level
 	//  (trust me - a good idea)
@@ -154,10 +158,20 @@ void MIX_init();
 
 void S_UpdateSounds(void* listener_p) {
 	mobj_t *listener = (mobj_t*)listener_p;
-	//MIX_UpdateSounds(listener);
+	if (!snd_card || nosfxparm)
+		return;
+	MIX_UpdateSounds(listener);
 }
-void mus_init_music();
+void mus_init();
+extern int audio_initialized;
 void S_Init(int sfxVolume, int musicVolume) {
-	//mus_init_music();
+	nosfxparm = 0;
+	nomusicparm = 0;
+	//return;
+
+	if (csndInit() == 0) {
+		audio_initialized = 1;
+	}
 	MIX_init();
+	mus_init();
 }

@@ -65,7 +65,12 @@
     <ClCompile Include="arm11\source\3ds_mix.c" />
     <ClCompile Include="arm11\source\3ds_sound.c" />
     <ClCompile Include="arm11\source\console.c" />
+    <ClCompile Include="arm11\source\dbopl.c" />
     <ClCompile Include="arm11\source\file.c" />
+    <ClCompile Include="arm11\source\Mixer_3ds.cpp" />
+    <ClCompile Include="arm11\source\musplay.c" />
+    <ClCompile Include="arm11\source\opl.c" />
+    <ClCompile Include="arm11\source\opl_queue.c" />
     <ClCompile Include="arm9\source\ds_main.c" />
     <ClCompile Include="arm9\source\ds_render.c" />
     <ClCompile Include="arm9\source\ds_sys.c" />
@@ -133,7 +138,6 @@
     <ClCompile Include="src\sounds.c" />
     <ClCompile Include="src\st_lib.c" />
     <ClCompile Include="src\st_stuff.c" />
-    <ClCompile Include="src\s_sound.c.unused" />
     <ClCompile Include="src\tables.c" />
     <ClCompile Include="src\version.c" />
     <ClCompile Include="src\v_video.c" />
@@ -145,6 +149,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arm11\include\font8x8_basic.h" />
+    <ClInclude Include="arm11\source\dbopl.h" />
+    <ClInclude Include="arm11\source\MixerHardware.h" />
+    <ClInclude Include="arm11\source\Mixer_3ds.h" />
+    <ClInclude Include="arm11\source\musplay.h" />
+    <ClInclude Include="arm11\source\opl.h" />
+    <ClInclude Include="arm11\source\opl_queue.h" />
     <ClInclude Include="arm9\include\config.h" />
     <ClInclude Include="arm9\include\ds_mix.h" />
     <ClInclude Include="arm9\include\ds_textures.h" />

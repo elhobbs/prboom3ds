@@ -48,7 +48,7 @@ static void sys_init() {
 	aptInit();
 	hidInit(NULL);
 	irrstInit(NULL);
-	gfxInit();
+	gfxInitDefault();
 
 	gfxSet3D(true);
 

@@ -1,11 +1,10 @@
+#if 0
 #include "config.h"
 #include "DoomDef.h"
 #include "w_wad.h"
 #include "lprintf.h"
-
-#ifdef ARM11
-#include <3ds.h>
 #endif
+
 
 #ifdef ARM9
 #include <nds.h> 
@@ -18,6 +17,9 @@
 #include <string.h>
 #include <malloc.h>
 
+#include <3ds.h>
+
+
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -25,12 +27,28 @@
 #endif
 
 #include "musplay.h"
+#include "opl.h"
+
+#include "w_wad.h"
+
+void mixer_update(short *pAudioData, int count);
+int mixer_pos();
+void mixer_init();
+void mixer_clear();
+void mixer_exit();
+void OPL_Render_Samples(void *dest, unsigned nsamp);
+
+Handle musRequest, musResponse, musMutex;
+volatile MUS_STATE musState = MUS_IDLE;
+
+extern int snd_MusicVolume;    // maximum volume for music 0-15
 
 uint OPLchannels = OPL2CHANNELS;
 static OP2instrEntry *OPLinstruments = 0;
 volatile ulong	MLtime;
 volatile uint	playingChannels = 0;
 static musicBlock _mus;
+static int mus_initialized = 0;
 
 /* OPL channel (voice) data */
 static  channelEntry channels[MAXCHANNELS];
@@ -47,10 +65,10 @@ static  channelEntry channels[MAXCHANNELS];
 
 #define MAKE_ID(ch, mus) ((ch)|((mus)<<8))
 
-#if 0
 
 void OPLwriteReg(byte reg, byte data) {
-	fifoSendValue32(FIFO_USER_01, (reg << 8) | data);
+	OPL_WriteRegister(reg, data);
+	//fifoSendValue32(FIFO_USER_01, (reg << 8) | data);
 }
 
 /*
@@ -379,7 +397,6 @@ static int occupyChannel(musicBlock *mus, uint slot, uint channel,
 	return slot;
 }
 
-#pragma argsused
 static int releaseChannel(musicBlock *mus, uint slot, uint killed)
 {
 	channelEntry *ch = &channels[slot];
@@ -445,8 +462,8 @@ static int findFreeChannel(musicBlock *mus, uint flag)
 		else
 			if (channels[i].time < oldesttime)
 			{
-			oldesttime = channels[i].time;
-			oldest = i;
+				oldesttime = channels[i].time;
+				oldest = i;
 			}
 	}
 
@@ -526,10 +543,10 @@ void OPLreleaseNote(musicBlock *mus, uint channel, uchar note)
 	for (i = 0; i < OPLchannels; i++)
 		if (CHANNEL_ID(channels[i]) == id && channels[i].note == note)
 		{
-		if (sustain < 0x40)
-			releaseChannel(mus, i, 0);
-		else
-			channels[i].flags |= CH_SUSTAIN;
+			if (sustain < 0x40)
+				releaseChannel(mus, i, 0);
+			else
+				channels[i].flags |= CH_SUSTAIN;
 		}
 }
 
@@ -663,7 +680,6 @@ void OPLchangeVolume(musicBlock *mus, uint volume)
 	}
 }
 
-#pragma argsused
 void OPLpauseMusic(musicBlock *mus)
 {
 	uint i;
@@ -681,10 +697,8 @@ void OPLpauseMusic(musicBlock *mus)
 	}
 }
 
-#pragma argsused
 void OPLunpauseMusic(musicBlock *mus)
 {
-	OPLdata *data = &mus->data;
 	uint i;
 	for (i = 0; i < OPLchannels; i++)
 	{
@@ -706,9 +720,10 @@ byte* mus_load_music(u8 *data)
 	//while((keysCurrent() & KEY_A) == 0);
 	byte *lump = (byte *)data;// W_CacheLumpName(name, PU_STATIC);
 	mus_header_t *header = (mus_header_t *)lump;
+	musicBlock *mus = &_mus;
 
 	if (lump == 0) {
-		iprintf("mus_load_music: failed\n");
+		printf("mus_load_music: failed\n");
 		return 0;
 	}
 
@@ -717,9 +732,12 @@ byte* mus_load_music(u8 *data)
 		header->ID[2] != 'S' ||
 		header->ID[3] != 0x1A)
 	{
-		iprintf("mus_load_music: failed\n");
+		printf("mus_load_music: failed\n");
 		return 0;
 	}
+
+	GSPGPU_FlushDataCache(NULL, mus, sizeof(*mus));
+	GSPGPU_FlushDataCache(NULL, lump + header->scoreStart, header->scoreLen);
 
 	return lump + header->scoreStart;
 }
@@ -729,6 +747,7 @@ volatile byte  *score;
 
 static int playTick(musicBlock *mus)
 {
+
 	for (;;)
 	{
 		uint data = *MUSdata++;
@@ -789,47 +808,21 @@ static ulong delayTicks(musicBlock *mus)
 	return time;
 }
 
-volatile int ds_timer_ticks = 0;
-
-void mus_play_timer(void) {
-	musicBlock *mus = &_mus;
-	ds_timer_ticks++;
-	//lprintf(LO_INFO, "tick: %x %d %d %d\n", MUSdata, mus->state, mus->ticks, MLtime);
-	if (mus && mus->state == ST_PLAYING)
-	{
-		if (!mus->ticks/* || PLAYFAST*/)
-		{
-			if (playTick(mus))
-			{					// end of song
-				//if (mus->loopcount &&
-				//	(mus->loopcount == -1U || --mus->loopcount)) // -1: loop forever
-					MUSdata = score;
-				//else
-				//	mus->state = ST_STOPPED;
-				//continue;
-			}
-			mus->time += mus->ticks = delayTicks(mus);
-		}
-		mus->ticks--;
-	}
-	MLtime++;
-}
-
-void mus_setup_timer() {
-	timerStart(2, ClockDivider_1024, TIMER_FREQ_1024(140), mus_play_timer);
-}
-
 void mus_play_music(u8 *data) {
 	musicBlock *mus = &_mus;
+
+	if (!mus_initialized) {
+		return;
+	}
 
 	switch (mus->state) {
 	case ST_EMPTY:
 	case ST_STOPPED:
 		break;
-		//	case ST_PLAYING:
-		//	case ST_PAUSED:
+	case ST_PLAYING:
+	case ST_PAUSED:
 	default:
-		mus->state = ST_STOPPED;
+		mus_stop_music();
 		OPLstopMusic(mus);
 	}
 
@@ -840,19 +833,40 @@ void mus_play_music(u8 *data) {
 	}
 	OPLplayMusic(mus);
 	mus->state = ST_PLAYING;
+	musState = MUS_PLAYING;
+	printf("starting music...");
+	svcSignalEvent(musRequest);
+	svcWaitSynchronization(musResponse, U64_MAX);
+	svcClearEvent(musResponse);
+	printf(" done\n");
 }
 
 void mus_stop_music() {
 	musicBlock *mus = &_mus;
+
+	if (!mus_initialized) {
+		return;
+	}
+	//only stop if playing
+	//?should this happen if paused?
+	if (mus->state != ST_PLAYING) {
+		return;
+	}
 	mus->state = ST_STOPPED;
 	OPLstopMusic(mus);
+	musState = MUS_IDLE;
+	printf("stopping music...");
+	svcWaitSynchronization(musResponse, U64_MAX);
+	svcClearEvent(musResponse);
+	printf(" done\n");
 }
-
-extern int snd_MusicVolume;    // maximum volume for music 0-15
 
 void mus_update_volume() {
 	musicBlock *mus = &_mus;
 	int volume = snd_MusicVolume * 34;
+	if (!mus_initialized) {
+		return;
+	}
 	mus->volume = volume;
 	OPLchangeVolume(mus, volume);
 }
@@ -875,32 +889,170 @@ static int mus_load_instruments(void) {
 	return 0;
 }
 
-void mus_init_music() {
+volatile int ds_timer_ticks = 0;
 
+void mus_play_timer(void) {
+	volatile musicBlock *mus = &_mus;
+	ds_timer_ticks++;
+	//printf("tick: %x %d %d %d\n", MUSdata, mus->state, mus->ticks, MLtime);
+	if (mus && mus->state == ST_PLAYING)
+	{
+		if (!mus->ticks/* || PLAYFAST*/)
+		{
+			if (playTick(mus))
+			{					// end of song
+				//if (mus->loopcount &&
+				//	(mus->loopcount == -1U || --mus->loopcount)) // -1: loop forever
+				MUSdata = score;
+				//else
+				//	mus->state = ST_STOPPED;
+				//continue;
+			}
+			mus->time += mus->ticks = delayTicks(mus);
+		}
+		mus->ticks--;
+	}
+	MLtime++;
+}
+
+#define ADLIB_STACK_SIZE 0x1000
+Handle adlibHandle = 0;
+static u64 adlibStack[ADLIB_STACK_SIZE / sizeof(u64)]; //u64 so that it's 8-byte aligned
+
+static short adlib_data[2048];
+static int adlib_pos = 0;
+static int adlib_mus = 0;
+
+void mus_frame() {
+	int end, cnt;
+	int nxt = mixer_pos();
+	//printf("frm: %d %d %d\n", mus - nxt, mus, nxt);
+
+	if (adlib_mus - nxt < 0) {
+		//printf("mus: %5d %5.6f\n", mus - nxt,nxt/32767.0f);
+		mus_play_timer();
+		adlib_mus += 233;
+	}
+	if (adlib_pos < nxt) {
+		adlib_pos = nxt;
+	}
+	end = nxt + 2048;
+	cnt = end - adlib_pos;
+	if (cnt < 0) {
+		cnt = 0;
+	}
+	else if (cnt > 2048) {
+		cnt = 2048;
+	}
+	if (cnt) {//pos - nxt < 2048) {
+		//printf("ren: %5d\n", cnt);
+		OPL_Render_Samples(adlib_data, cnt);
+		//printf("mix: %5d\n", cnt);
+		mixer_update(adlib_data, cnt);
+		adlib_pos += cnt;
+	}
+	//printf("slp: %5d\n", mus - mixer_pos());
+	if ((adlib_mus - mixer_pos()) > 0) {
+		svcSleepThread((adlib_mus - mixer_pos()) * 1000000000LL / 32728);
+	}
+}
+
+static void adlibThreadMain(void* arg) {
+
+	do {
+		svcWaitSynchronization(musRequest, U64_MAX);
+		svcClearEvent(musRequest);
+		//indicate we finished the request
+		svcSignalEvent(musResponse);
+
+
+		if (musState == MUS_PLAYING) {
+			//printf("\n at %08x...", MUSdata);
+			adlib_mus = adlib_pos = mixer_pos();
+
+			do {
+				mus_frame();
+			} while (musState == MUS_PLAYING);
+
+			//svcSleepThread(5000000000LL);
+			mixer_clear();
+		}
+		//we get here when a request to stop is received by changing musState
+		//indicate we finished the request
+		svcSignalEvent(musResponse);
+
+		if (musState == MUS_EXIT) {
+			break;
+		}
+	} while (1);
+
+	svcExitThread();
+}
+
+void mus_setup_timer() {
+	//timerStart(2, ClockDivider_1024, TIMER_FREQ_1024(140), mus_play_timer);
+	svcCreateEvent(&musRequest, 0);
+	svcCreateEvent(&musResponse, 0);
+	svcCreateMutex(&musMutex, false);
+
+	mixer_init();
+	adlib_mus = adlib_pos = mixer_pos();
+
+	svcCreateThread(&adlibHandle, adlibThreadMain, 0x0, (u32*)((char*)adlibStack + sizeof(adlibStack)), 0x18, 1);
+}
+
+void mus_init() {
+
+	if (!OPL_Init(32728))
+	{
+		//printf("Dude.  The Adlib isn't responding.\n");
+		return;
+	}
 	memset(channels, 0xFF, sizeof channels);
 	OPLinstruments = 0;
 	OPLinit();
 
 	if (mus_load_instruments()) {
+		OPL_Shutdown();
 		return;
 	}
 	musicBlock *mus = &_mus;
 	mus->state = ST_EMPTY;
 	mus->number = 0;
-	//mus->driver = drv;
 	mus->volume = 256;
 	mus->channelMask = -1U;
 	mus->percussMask = 1 << PERCUSSION;
 
 	mus_setup_timer();
+	mus_initialized = 1;
 }
-#else
-void mus_init_music() {
+
+void mus_exit() {
+	if (!mus_initialized) {
+		return;
+	}
+	mus_initialized = 0;
+	//release the thread if it is waiting to start
+	if (musState != MUS_PLAYING) {
+		musState = MUS_EXIT;
+		svcSignalEvent(musRequest);
+	}
+	else {
+		musState = MUS_EXIT;
+	}
+	//end mixing and wait for response
+	svcWaitSynchronization(musResponse, U64_MAX);
+	svcClearEvent(musResponse);
+	printf("shutdown complete\n");
+	mixer_exit();
+	svcSleepThread(5000000000LL);
+
+	//wait for the thread to end
+	svcWaitSynchronization(adlibHandle, U64_MAX);
+
+	//release all handles
+	svcCloseHandle(musRequest);
+	svcCloseHandle(musResponse);
+	svcCloseHandle(musMutex);
+	svcCloseHandle(adlibHandle);
 }
-void mus_play_music(u8 *data) {
-}
-void mus_stop_music() {
-}
-void mus_update_volume() {
-}
-#endif

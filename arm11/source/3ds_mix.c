@@ -58,11 +58,12 @@ typedef struct
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 
 static int snd_scaletable[32][256];
-static audio_initialized = 0;
+int audio_initialized = 0;
 
 #if 1
 
 static u64 sound_start;
+#define TICKS_PER_SEC 268123480.0
 
 u64 sound_time()
 {
@@ -73,8 +74,8 @@ u64 sound_time()
 void mix_start() {
 	memset(c_snd_Buffer_left, 0, SND_SAMPLES);
 	memset(c_snd_Buffer_right, 0, SND_SAMPLES);
-	c_snd_Buffer_left[4] = c_snd_Buffer_left[5] = 0x7f;	// force a pop for debugging
-	c_snd_Buffer_right[4] = c_snd_Buffer_right[5] = 0x7f;	// force a pop for debugging
+	//c_snd_Buffer_left[4] = c_snd_Buffer_left[5] = 0x7f;	// force a pop for debugging
+	//c_snd_Buffer_right[4] = c_snd_Buffer_right[5] = 0x7f;	// force a pop for debugging
 	GSPGPU_FlushDataCache(NULL, c_snd_Buffer_left, SND_SAMPLES);
 	GSPGPU_FlushDataCache(NULL, c_snd_Buffer_right, SND_SAMPLES);
 }
@@ -109,16 +110,13 @@ void MIX_init() {
 	snd_Samples = SND_SAMPLES;
 	snd_Speed = 11025;
 	
-	if (CSND_initialize(NULL) == 0) {
-		audio_initialized = 1;
-	}
 	c_snd_Buffer_left = linearAlloc(SND_SAMPLES * 2);
 	c_snd_Buffer_right = c_snd_Buffer_left + SND_SAMPLES;
 
 	mix_start();
 
-	CSND_playsound(0x8, CSND_LOOP_ENABLE, CSND_ENCODING_PCM8, 11025, (u32*)c_snd_Buffer_left, (u32*)c_snd_Buffer_right, SND_SAMPLES * 2, 2, 2);
-	sound_start = osGetTime();
+	csndPlaySound(0x8, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, (u32*)c_snd_Buffer_left, (u32*)c_snd_Buffer_right, SND_SAMPLES * 2);
+	sound_start = svcGetSystemTick();
 }
 
 void MIX_TransferPaintBuffer(int endtime)
@@ -239,7 +237,7 @@ void MIX_PaintChannels(int endtime)
 
 			ltime = paintedtime;
 			//printf("mixing %d %d %8s\n", ltime, ch->end, ch->sfxinfo->name);
-			printf("mixing: %8s %d %d\n", ch->sfxinfo->name, ch->left, ch->right);
+			//printf("mixing: %8s %d %d\n", ch->sfxinfo->name, ch->left, ch->right);
 
 			while (ltime < end)
 			{	// paint up to end
@@ -279,11 +277,19 @@ void MIX_PaintChannels(int endtime)
 }
 
 int MIX_SamplePos() {
-	u64 v;
+	//u64 v;
 
-	v = (snd_Speed * sound_time()) / 1000;
+	//v = (snd_Speed * sound_time()) / 1000;
 
-	return (int)v;
+	//return (int)v;
+	u64 delta = svcGetSystemTick() - sound_start;
+	// Work around the VFP not supporting 64-bit integer <--> floating point conversion
+	double temp = (u32)(delta >> 32);
+	temp *= 0x100000000ULL;
+	temp += (u32)delta;
+
+	delta = (temp * 11025.0) / TICKS_PER_SEC;
+	return delta;
 }
 
 void MIX_UpdateTime(void)
@@ -296,6 +302,9 @@ void MIX_Update_(void)
 	unsigned        endtime;
 	int				samps;
 	int diff;
+
+	//if (!snd_card || nosfxparm)
+	//	return;
 
 	if (!audio_initialized) {
 		return;
@@ -415,30 +424,32 @@ void MIX_UpdateSounds(mobj_t *listener)
 	int absx;
 	int absy;
 
-	listener = players[consoleplayer].mo;
+	//listener = players[consoleplayer].mo;
 	if (snd_SfxVolume == 0)
 	{
 		return;
 	}
 
-	for (i = 0; i<snd_Channels; i++)
-	{
-		if (!channel[i].sfxinfo || 
-			channel[i].origin == 0 || 
-			channel[i].origin == listener)
+	if (listener) {
+		for (i = 0; i < snd_Channels; i++)
 		{
-			continue;
+			if (channel[i].sfxinfo == 0 ||
+				channel[i].origin == 0 ||
+				channel[i].origin == listener)
+			{
+				continue;
+			}
+			else if (!S_AdjustSoundParams(listener, channel[i].origin, &vol, &sep, &dist)) {
+				S_StopSound(channel[i].origin);
+				continue;
+			}
+			priority = channel[i].sfxinfo->priority;
+			priority *= (10 - (dist >> 8));
+			//channel[i].priority = priority;
+			channel[i].left = ((255 - sep) * vol) / 15;
+			channel[i].right = ((sep)* vol) / 15;
+			//printf("AGAIN %d %d - %d %d\n", sep, vol, channel[i].left, channel[i].right);
 		}
-		else if (!S_AdjustSoundParams(listener, channel[i].origin, &vol, &sep, &dist)) {
-			S_StopSound(channel[i].origin);
-			continue;
-		}
-		priority = channel[i].sfxinfo->priority;
-		priority *= (10 - (dist >> 8));
-		//channel[i].priority = priority;
-		channel[i].left = ((255 - sep) * vol) / 15;
-		channel[i].right = ((sep)* vol) / 15;
-		//printf("AGAIN %d %d - %d %d\n", sep, vol, channel[i].left, channel[i].right);
 	}
 	MIX_Update_();
 }
@@ -607,7 +618,7 @@ int I_StartSound(sfxinfo_t *sfx, int cnum, int vol, int sep, int pitch, int prio
 	ch->right = ((sep)* vol) / 15;
 	ch->end = paintedtime + len;
 	ch->pos = 0;
-	printf("%8s %d %d - %d %d\n",sfx->name, sep, vol, ch->left, ch->right);
+	//printf("%8s %d %d - %d %d\n",sfx->name, sep, vol, ch->left, ch->right);
 	
 	if (0 && !cached) {
 		// convert unsigned sample to signed
