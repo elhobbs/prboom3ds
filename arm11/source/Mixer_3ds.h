@@ -17,16 +17,19 @@ public:
 	void update(short *pAudioData, int count);
 	int samplepos();
 	void clear();
+	byte *buffer();
 private:
 
 	int m_channels;
 	int m_speed;
 
+	u32				m_lastPos;
 	u64				m_start;
 	u64				m_soundPos;		//the sound position
 	u64				m_bufferPos;	//the write position
 	int				m_bufferSize;	// the size of soundBuffer
 	byte			*m_soundBuffer;	// the buffer itself
+	u32				m_soundBufferPHY;
 };
 
 inline MixerHardware3DS::MixerHardware3DS() {

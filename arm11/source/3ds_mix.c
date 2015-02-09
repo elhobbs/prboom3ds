@@ -48,6 +48,8 @@ int   		paintedtime; 	// sample PAIRS
 #define SND_SAMPLES (8192)
 byte *c_snd_Buffer_left;// = c_snd_Buffer;
 byte *c_snd_Buffer_right;// = c_snd_Buffer + SND_SAMPLES;
+u32 c_snd_LPHY;
+u32 c_snd_RPHY;
 
 #define	PAINTBUFFER_SIZE	512
 typedef struct
@@ -112,10 +114,13 @@ void MIX_init() {
 	
 	c_snd_Buffer_left = linearAlloc(SND_SAMPLES * 2);
 	c_snd_Buffer_right = c_snd_Buffer_left + SND_SAMPLES;
+	c_snd_LPHY = osConvertVirtToPhys(c_snd_Buffer_left);
+	c_snd_RPHY = osConvertVirtToPhys(c_snd_Buffer_right);
 
 	mix_start();
 
-	csndPlaySound(0x8, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, (u32*)c_snd_Buffer_left, (u32*)c_snd_Buffer_right, SND_SAMPLES * 2);
+	csndPlaySound(0x8, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, (u32*)c_snd_Buffer_left, (u32*)c_snd_Buffer_left, SND_SAMPLES);
+	csndPlaySound(0x9, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, (u32*)c_snd_Buffer_right, (u32*)c_snd_Buffer_right, SND_SAMPLES);
 	sound_start = svcGetSystemTick();
 }
 
@@ -276,6 +281,23 @@ void MIX_PaintChannels(int endtime)
 	}
 }
 
+#if 1
+u64 mixPosition = 0;
+int MIX_SamplePos() {
+	static int last = 0;
+	int pos, diff;
+	CSND_ChnInfo musInfo;
+	csndGetState(0x9, &musInfo);
+	pos = musInfo.samplePAddr - c_snd_RPHY;
+	diff = pos - last;
+	//check for wrap
+	if (diff < 0) diff += SND_SAMPLES;
+	last = pos;
+	mixPosition += diff;
+	return mixPosition;
+}
+
+#else
 int MIX_SamplePos() {
 	//u64 v;
 
@@ -291,6 +313,7 @@ int MIX_SamplePos() {
 	delta = (temp * 11025.0) / TICKS_PER_SEC;
 	return delta;
 }
+#endif
 
 void MIX_UpdateTime(void)
 {

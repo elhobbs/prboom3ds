@@ -7,8 +7,10 @@ void MixerHardware3DS::init() {
 	m_bufferSize = 4096;
 
 	m_soundBuffer = (byte *)linearAlloc(m_bufferSize);
+	m_soundBufferPHY = osConvertVirtToPhys((u32)m_soundBuffer);
 	m_bufferPos = 0;
 	m_soundPos = 0;
+	m_lastPos = 0;
 	clear();
 
 	csndPlaySound(0x10, SOUND_REPEAT | SOUND_FORMAT_8BIT, m_speed, (u32*)m_soundBuffer, (u32*)m_soundBuffer, m_bufferSize);
@@ -28,9 +30,25 @@ void MixerHardware3DS::shutdown() {
 void MixerHardware3DS::flush() {
 }
 
+byte* MixerHardware3DS::buffer() {
+	return m_soundBuffer;
+}
+
 #define TICKS_PER_SEC 268123480.0
 
 int MixerHardware3DS::samplepos() {
+#if 1
+	int pos,diff;
+	CSND_ChnInfo musInfo;
+	csndGetState(0x10, &musInfo);
+	pos = musInfo.samplePAddr - m_soundBufferPHY;
+	diff = pos - m_lastPos;
+	//check for wrap
+	if(diff < 0) diff += m_bufferSize;
+	m_lastPos = pos;
+	m_soundPos += diff;
+	return m_soundPos;
+#else
 	u64 delta = svcGetSystemTick() - m_start;
 	// Work around the VFP not supporting 64-bit integer <--> floating point conversion
 	double temp = (u32)(delta >> 32);
@@ -40,6 +58,7 @@ int MixerHardware3DS::samplepos() {
 	delta = (temp * m_speed) / TICKS_PER_SEC;
 	m_soundPos = delta;
 	return m_soundPos;
+#endif
 }
 
 void MixerHardware3DS::update(int *pAudioData, int count) {
@@ -93,5 +112,9 @@ extern "C" void mixer_exit() {
 
 extern "C" void mixer_clear() {
 	g_mixer.clear();
+}
+
+extern "C" byte* mixer_buffer() {
+	return g_mixer.buffer();
 }
 

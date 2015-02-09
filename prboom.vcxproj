@@ -78,7 +78,6 @@
     <ClCompile Include="arm9\source\ds_vid.c" />
     <ClCompile Include="arm9\source\ds_vram.c" />
     <ClCompile Include="arm9\source\geometry.c" />
-    <ClCompile Include="arm9\source\musplay.c" />
     <ClCompile Include="arm9\source\polylib.c" />
     <ClCompile Include="src\am_map.c" />
     <ClCompile Include="src\doomdef.c" />
@@ -160,7 +159,6 @@
     <ClInclude Include="arm9\include\ds_textures.h" />
     <ClInclude Include="arm9\include\ds_vram.h" />
     <ClInclude Include="arm9\source\geometry.h" />
-    <ClInclude Include="arm9\source\musplay.h" />
     <ClInclude Include="src\am_map.h" />
     <ClInclude Include="src\doomdata.h" />
     <ClInclude Include="src\doomdef.h" />

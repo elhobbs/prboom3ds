@@ -258,9 +258,6 @@
     <ClCompile Include="arm9\source\ds_textures.c">
       <Filter>Arm9\source</Filter>
     </ClCompile>
-    <ClCompile Include="arm9\source\musplay.c">
-      <Filter>Arm9\source</Filter>
-    </ClCompile>
     <ClCompile Include="arm11\source\console.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
@@ -523,9 +520,6 @@
     </ClInclude>
     <ClInclude Include="arm9\include\ds_vram.h">
       <Filter>Arm9\include</Filter>
-    </ClInclude>
-    <ClInclude Include="arm9\source\musplay.h">
-      <Filter>Arm9\source</Filter>
     </ClInclude>
     <ClInclude Include="arm9\include\ds_mix.h">
       <Filter>Arm9\include</Filter>

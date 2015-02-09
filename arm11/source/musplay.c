@@ -36,6 +36,7 @@ int mixer_pos();
 void mixer_init();
 void mixer_clear();
 void mixer_exit();
+byte* mixer_buffer();
 void OPL_Render_Samples(void *dest, unsigned nsamp);
 
 Handle musRequest, musResponse, musMutex;
@@ -945,7 +946,6 @@ void mus_frame() {
 		cnt = 2048;
 	}
 	if (cnt) {//pos - nxt < 2048) {
-		//printf("ren: %5d\n", cnt);
 		OPL_Render_Samples(adlib_data, cnt);
 		//printf("mix: %5d\n", cnt);
 		mixer_update(adlib_data, cnt);
@@ -958,7 +958,6 @@ void mus_frame() {
 }
 
 static void adlibThreadMain(void* arg) {
-
 	do {
 		svcWaitSynchronization(musRequest, U64_MAX);
 		svcClearEvent(musRequest);
@@ -971,6 +970,7 @@ static void adlibThreadMain(void* arg) {
 			adlib_mus = adlib_pos = mixer_pos();
 
 			do {
+				//printf("\n at %08x...", MUSdata);
 				mus_frame();
 			} while (musState == MUS_PLAYING);
 
