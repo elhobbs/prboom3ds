@@ -4233,6 +4233,7 @@ boolean M_Responder (event_t* ev) {
   // Save Game string input
 
   if (saveStringEnter) {
+	  //printf("saveStringEnter: %d\n", ch);
 	  if (ch == 8 || ch == key_menu_backspace)                            // phares 3/7/98
 	  {
 		  if (saveCharIndex > 0)

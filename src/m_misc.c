@@ -89,6 +89,8 @@ boolean M_WriteFile(char const *name, void *source, int length)
 
   errno = 0;
 
+  printf("saving: %s %08x %d\n", name, source, length);
+
   if (!(fp = fopen(name, "wb")))       // Try opening file
     return 0;                          // Could not open file for writing
 
@@ -96,6 +98,8 @@ boolean M_WriteFile(char const *name, void *source, int length)
   length = fwrite(source, 1, length, fp) == (size_t)length;   // Write data
   fclose(fp);
   I_EndRead();                         // Disk icon off
+
+  printf("wrote: %d\n", name, source, length);
 
   if (!length)                         // Remove partially written file
     remove(name);

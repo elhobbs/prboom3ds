@@ -1761,7 +1761,8 @@ void (CheckSaveGame)(size_t size, const char* file, int line)
 int G_SaveGameName(char *name, size_t size, int slot, boolean demoplayback)
 {
   const char* sgn = demoplayback ? "demosav" : savegamename;
-  return doom_snprintf (name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
+  //return doom_snprintf(name, size, "%s/%s%d.dsg", basesavegame, sgn, slot);
+  return doom_snprintf(name, size, "%s%d.dsg", sgn, slot);
 }
 
 static void G_DoSaveGame (boolean menu)

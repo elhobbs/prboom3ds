@@ -285,6 +285,9 @@
     <ClCompile Include="arm11\source\opl_queue.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
+    <ClCompile Include="arm11\source\keyboard.c">
+      <Filter>Arm11\source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\am_map.h">
@@ -544,6 +547,9 @@
     </ClInclude>
     <ClInclude Include="arm11\source\opl_queue.h">
       <Filter>Arm11\include</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\source\keyboard.h">
+      <Filter>Arm11\source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

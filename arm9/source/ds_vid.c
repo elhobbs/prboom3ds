@@ -17,6 +17,7 @@
 #include "r_draw.h"
 #include "st_stuff.h"
 #include "w_wad.h"
+#include "keyboard.h"
 
 #ifdef DISABLE_DOUBLEBUFFER
 int use_doublebuffer = 0;
@@ -339,9 +340,24 @@ void I_StartTic(void) {
 		event.data1 = key;
 		D_PostEvent(&event);
 #endif
+		u16 key = 0;
+		u16 keys;
+		
+		scanKeys();
+		keys = keysDown();
+		if (keys & KEY_A) key = 10;
+		if (keys & KEY_B) key = KEYD_ESCAPE;
+		if (key) {
+			event_t event;
+			event.type = ev_keydown;
+			event.data1 = key;
+			D_PostEvent(&event);
+		}
+		keyboard_input();
 	}
 	else {
 		DS_Controls();
+		keyboard_input();
 	}
 }
 
