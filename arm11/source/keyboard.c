@@ -9,12 +9,16 @@ typedef struct {
 	char *text, *shift_text;
 } sregion_t;
 
+int keyboard_visible_last = 1;
 int	keyboard_visible = 1; //0=hidden,1=fullsize,2=mini - numbers only
 
 
 static char key_buttons[] = "1234567890";
 
-static sregion_t key_button_array = { 32, 0, 0, 0, 0, key_buttons, key_buttons };
+static sregion_t key_button_array[] = {
+	{ 32, 0, 0, 0, 0, key_buttons, key_buttons },
+	{ 270, 0, 6, 0, 0x200, 0 },
+};
 
 static char key_row_1[] = "~1234567890-=";
 static char key_row_1_shift[] = "`!@#$%^&*()_+";
@@ -56,6 +60,7 @@ static sregion_t key_array[] = {
 	{ 256 - 16 * 3, 4 * 16, 3, 0, KEYD_LEFTARROW, 0 },
 	{ 256 - 16 * 2, 4 * 16, 4, 0, KEYD_DOWNARROW, 0 },
 	{ 256 - 16 * 1, 4 * 16, 5, 0, KEYD_RIGHTARROW, 0 },
+	{ 270, 4 * 16, 6, 0, 0x200, 0 },
 };
 
 static sregion_t *key_touching = 0;
@@ -92,34 +97,21 @@ void keyboard_init()
 
 	for (i = 0; i<count; i++)
 	{
-		if (key_array[i].type == 0)
-		{
+		switch (key_array[i].type) {
+		case 0:
 			len = strlen(key_array[i].text) * 16;
 			key_array[i].dx = len;
-		}
-		else if (key_array[i].type == 1)
-		{
+			break;
+		case 1:
 			len = strlen(key_array[i].text) * 8 + 4;
 			key_array[i].dx = len;
-		}
-		else if (key_array[i].type == 2)
-		{
-			key_array[i].dx = 16;
-		}
-		else if (key_array[i].type == 3)
-		{
-			key_array[i].dx = 16;
-		}
-		else if (key_array[i].type == 4)
-		{
-			key_array[i].dx = 16;
-		}
-		else if (key_array[i].type == 5)
-		{
+			break;
+		default:
 			key_array[i].dx = 16;
 		}
 	}
-	key_button_array.dx = strlen(key_button_array.text) * 16;
+	key_button_array[0].dx = strlen(key_button_array[0].text) * 16;
+	key_button_array[1].dx = 16;
 }
 
 void keyboard_scankeys()
@@ -139,11 +131,11 @@ void keyboard_scankeys()
 	}
 
 
-	vofs = (SCREENHEIGHT / 2);
+	vofs = 156;
 	hofs = 32;
 	if (keyboard_visible == 2)
 	{
-		vofs = 0;
+		vofs = 220;
 	}
 
 	x = y = -1;
@@ -175,8 +167,8 @@ void keyboard_scankeys()
 	region = &key_array[0];
 	if (keyboard_visible == 2)
 	{
-		region = &key_button_array;
-		count = 1;
+		region = &key_button_array[0];
+		count = 2;
 	}
 
 	for (i = 0; i<count; i++)
@@ -280,6 +272,10 @@ void keyboard_input() {
 			key_in_caps = key_in_caps ? 0 : 1;
 			return;
 		}
+
+		if (key == 0x200) {
+			keyboard_visible = (keyboard_visible == 2 ? 1 : 2);
+		}
 	}
 
 	last_in_touch = key_in_touch;
@@ -291,7 +287,7 @@ void keyboard_input() {
 extern const u8 default_font_bin[];
 static u16 *vbuf;
 
-void keyboard_draw_char(int x, int y, int c) {
+void keyboard_draw_char(int x, int y, int c, u16 fg) {
 	//---------------------------------------------------------------------------------
 	//c -= currentConsole->font.asciiOffset;
 	if (c < 0 || c > 256) return;
@@ -315,7 +311,7 @@ void keyboard_draw_char(int x, int y, int c) {
 	//}
 
 	u16 bg = RGB8_to_565(0, 0, 0);// colorTable[screenColor];
-	u16 fg = RGB8_to_565(192, 192, 192);// colorTable[writingColor];
+	//u16 fg = RGB8_to_565(192, 192, 192);// colorTable[writingColor];
 
 	u8 b1 = *(fontdata++);
 	u8 b2 = *(fontdata++);
@@ -363,6 +359,22 @@ void keyboard_draw_char(int x, int y, int c) {
 
 }
 
+void vline(int x, int y, int len, u16 color) {
+	int i;
+	u16 *screen = &vbuf[(x * 240) + (239 - y)];
+	for (i = 0; i < len; i++) {
+		*screen-- = color;
+	}
+}
+
+void hline(int x, int y, int len, u16 color) {
+	int i;
+	u16 *screen = &vbuf[(x * 240) + (239 - y)];
+	for (i = 0; i < len; i++) {
+		*screen = color;
+		screen += 240;
+	}
+}
 
 void keyboard_draw()
 {
@@ -374,6 +386,9 @@ void keyboard_draw()
 	sregion_t *region;
 	int count = sizeof(key_array) / sizeof(sregion_t);
 	u16 width, height;
+	u16 fg = RGB8_to_565(192, 192, 192);// colorTable[writingColor];
+	u16 bg = RGB8_to_565(204, 102, 0);// colorTable[writingColor];
+	u16 *screen;
 
 
 	if (keyboard_visible == 0)
@@ -382,53 +397,58 @@ void keyboard_draw()
 	}
 
 	vbuf = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, &width, &height);;
-	vofs = SCREENHEIGHT / 2;
+
+	//erase the old keyboard
+	if (keyboard_visible != keyboard_visible_last) {
+		int i;
+		int h = (keyboard_visible_last == 1 ? 90 : 20) * 2;
+		for (i = 0; i < 320; i++) {
+			memset(vbuf + i * 240, 0, h);
+		}
+		keyboard_visible_last = keyboard_visible;
+		consoleSetWindow(0, 0, 0, 40, keyboard_visible == 1 ? 15 : 24);
+		consoleClear();
+	}
+
+	vofs = 156;
 	hofs = 32;
 
 	region = &key_array[0];
 	if (keyboard_visible == 2)
 	{
-		region = &key_button_array;
-		count = 1;
-		vofs = 0;
+		region = &key_button_array[0];
+		count = 2;
+		vofs = 220;
 	}
 
 
 	for (i = 0; i<count; i++)
 	{
+		u16 c = key_touching == &region[i] ? bg : fg;
+		x = hofs + region[i].x;
+		y = vofs + region[i].y;
+
 		if (region[i].type == 0)
 		{
-			x = hofs + region[i].x;
-			y = vofs + region[i].y;
 			ch = key_in_shift ? region[i].shift_text : region[i].text;
 			pos = 0;
 			while (ch && *ch)
 			{
-#if 0
-				//left/right sides
-				buf = vbuf + ((y + 1)*vid.width) + x;
-				for (k = 0; k<14; k++)
-				{
-					*buf = 7;
-					*(buf + 14) = 7;
-					buf += vid.width;
-				}
-				//top/bottom
-				buf = vbuf + ((y + 1)*vid.width) + x + 1;
-				for (k = 0; k<14; k++)
-				{
-					*buf = 7;
-					*(buf + 13 * vid.width) = 7;
-					buf++;
-				}
-#endif
-				k = key_in_caps ? toupper(*ch) : *ch;
 				if (key_touching == &region[i] && key_touching_index == pos) {
-					keyboard_draw_char(x + 3, y + 4, k);// < 128 ? k + 128 : k);
-				} 
-				else {
-					keyboard_draw_char(x + 3, y + 4, k);
+					c = bg;
 				}
+				else {
+					c = fg;
+				}
+				//left/right sides
+				vline(x     , y +  1, 14, c);
+				vline(x + 14, y +  1, 14, c);
+				//top/bottom
+				hline(x +  1, y +  1, 14, c);
+				hline(x +  1, y + 14, 14, c);
+
+				k = key_in_caps ? toupper(*ch) : *ch;
+				keyboard_draw_char(x + 3, y + 4, k, c);
 				ch++;
 				x += 16;
 				pos++;
@@ -436,104 +456,92 @@ void keyboard_draw()
 		}
 		else if (region[i].type == 1)
 		{
-			x = hofs + region[i].x;
-			y = vofs + region[i].y;
 			ch = region[i].text;
 			len = strlen(ch) * 8 + 4;
-#if 0
+			if (key_touching == &region[i] ||
+				(key_in_caps && region[i].key == KEYD_CAPSLOCK) ||
+				(key_in_shift && region[i].key == KEYD_RSHIFT)) {
+				c = bg;
+			}
+			else {
+				c = fg;
+			}
+
 			//left/right sides
-			buf = vbuf + ((y + 1)*vid.width) + x;
-			for (k = 0; k<14; k++)
-			{
-				*buf = 7;
-				*(buf + len) = 7;
-				buf += vid.width;
-			}
+			vline(x      , y +  1,  14, c);
+			vline(x + len, y +  1,  14, c);
 			//top/bottom
-			buf = vbuf + ((y + 1)*vid.width) + x + 1;
-			for (k = 0; k<len; k++)
-			{
-				*buf = 7;
-				*(buf + 13 * vid.width) = 7;
-				buf++;
-			}
-#endif
+			hline(x +   1, y +  1, len, c);
+			hline(x +   1, y + 14, len, c);
+
 			while (ch && *ch)
 			{
-				if (key_touching == &region[i] ||
-					(key_in_caps && region[i].key == KEYD_CAPSLOCK) ||
-					(key_in_shift && region[i].key == KEYD_RSHIFT)) {
-					keyboard_draw_char(x + 3, y + 4, *ch);// < 128 ? *ch + 128 : *ch, vbuf);
-				} 
-				else {
-					keyboard_draw_char(x + 3, y + 4, *ch);// , vbuf);
-				}
+				keyboard_draw_char(x + 3, y + 4, *ch, c);// , vbuf);
 				ch++;
 				x += 8;
 			}
 		}
-#if 0
 		else if (region[i].type == 2)
 		{
-			x = hofs + region[i].x;
-			y = vofs + region[i].y;
-			buf = vbuf + ((y + 1)*vid.width) + x;
-			for (k = 0; k<12; k++)
+			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
+			for (j = 0; j<12; j++)
 			{
-				for (j = 0; j<12; j++)
+				for (k = 0; k<12; k++)
 				{
-					if (key_arrow[k][j])
-						buf[j] = key_arrow[k][j];
+					if (key_arrow[11-k][j])
+						screen[k] = c;
 				}
-				buf += vid.width;
+				screen += 240;
 			}
 		}
 		else if (region[i].type == 3)
 		{
-			x = hofs + region[i].x;
-			y = vofs + region[i].y;
-			buf = vbuf + ((y + 1)*vid.width) + x;
-			for (k = 0; k<12; k++)
+			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
+			for (j = 0; j<12; j++)
 			{
-				for (j = 0; j<12; j++)
+				for (k = 0; k<12; k++)
 				{
-					if (key_arrow[j][k])
-						buf[j] = key_arrow[j][k];
+					if (key_arrow[j][11 - k])
+						screen[k] = c;
 				}
-				buf += vid.width;
+				screen += 240;
 			}
 		}
 		else if (region[i].type == 4)
 		{
-			x = hofs + region[i].x;
-			y = vofs + region[i].y;
-			buf = vbuf + ((y + 1)*vid.width) + x;
-			for (k = 0; k<12; k++)
+			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
+			for (j = 0; j<12; j++)
 			{
-				for (j = 0; j<12; j++)
+				for (k = 0; k<12; k++)
 				{
-					if (key_arrow[11 - k][j])
-						buf[j] = key_arrow[11 - k][j];
+					if (key_arrow[k][j])
+						screen[k] = c;
 				}
-				buf += vid.width;
+				screen += 240;
 			}
 		}
 		else if (region[i].type == 5)
 		{
-			x = hofs + region[i].x;
-			y = vofs + region[i].y;
-			buf = vbuf + ((y + 1)*vid.width) + x;
-			for (k = 0; k<12; k++)
+			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
+			for (j = 0; j<12; j++)
 			{
-				for (j = 0; j<12; j++)
+				for (k = 0; k<12; k++)
 				{
-					if (key_arrow[j][k])
-						buf[11 - j] = key_arrow[j][k];
+					if (key_arrow[11 - j][11 - k])
+						screen[k] = c;
 				}
-				buf += vid.width;
+				screen += 240;
 			}
 		}
-#endif
+		else if (region[i].type == 6)
+		{
+			//left/right sides
+			vline(x, y + 1, 14, c);
+			vline(x + 14, y + 1, 14, c);
+			//top/bottom
+			hline(x + 1, y + 1, 14, c);
+			hline(x + 1, y + 14, 14, c);
+		}
 	}
 
 }
