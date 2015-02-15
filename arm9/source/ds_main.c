@@ -56,7 +56,7 @@ static void sys_init() {
 
 	//con_init();
 	consoleInit(GFX_BOTTOM, 0);
-	consoleSetWindow(0, 0, 0, 40, 15);
+	//consoleSetWindow(0, 0, 0, 40, 15);
 	keyboard_init();
 	//SD_init();
 	sdmcInit();

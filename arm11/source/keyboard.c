@@ -9,7 +9,10 @@ typedef struct {
 	char *text, *shift_text;
 } sregion_t;
 
-int keyboard_visible_last = 1;
+void keyboard_draw_region(sregion_t *region, int index, u16 c);
+
+
+int keyboard_visible_last = 0;
 int	keyboard_visible = 1; //0=hidden,1=fullsize,2=mini - numbers only
 
 
@@ -63,11 +66,21 @@ static sregion_t key_array[] = {
 	{ 270, 4 * 16, 6, 0, 0x200, 0 },
 };
 
+static u16 keyboard_fg = RGB8_to_565(192, 192, 192);
+static u16 keyboard_bg = RGB8_to_565(204, 102, 0);
+
+static int keyboard_vofs;
+static int keyboard_hofs;
+
 static sregion_t *key_touching = 0;
 static int key_touching_index = -1;
 static int key_in_touch = 0;
 static int last_in_touch = 0;
 
+static int last_index = -1;
+static sregion_t *last_touching = 0;
+
+static int key_down = 0;
 static int key_in_shift = 0;
 static int key_in_ctrl = 0;
 static int key_in_alt = 0;
@@ -112,30 +125,69 @@ void keyboard_init()
 	}
 	key_button_array[0].dx = strlen(key_button_array[0].text) * 16;
 	key_button_array[1].dx = 16;
+	
+	keyboard_vofs = 152;
+	keyboard_hofs = 32;
+	if (keyboard_visible == 2) {
+		keyboard_vofs = 216;
+	}
 }
 
-void keyboard_scankeys()
+void keyboard_mark(sregion_t *region, int index, int in_touch) {
+	last_touching = key_touching;
+	last_index = key_touching_index;
+	last_in_touch = key_in_touch;
+
+	key_touching = region;
+	key_touching_index = index;
+	key_in_touch = in_touch;
+	//check for shift and caps on keydown so that they get colored correctly
+	if (key_touching && key_touching != last_touching) {
+		if (key_touching->type == 6 || key_touching->type == 1) {
+
+			switch (key_touching->key) {
+			case 0x200:
+				//change the keyboard layout
+				keyboard_visible++;
+				if (keyboard_visible > 2) {
+					keyboard_visible = 1;
+				}
+				//clear touch to avoid layout change issues
+				key_touching = last_touching = 0;
+				key_touching_index = last_index = -1;
+				break;
+			case KEYD_RSHIFT:
+				//force whole refresh
+				keyboard_visible_last = -1;
+				key_in_shift = key_in_shift ? 0 : 1;
+				break;
+			case KEYD_CAPSLOCK:
+				//force whole refresh
+				keyboard_visible_last = -1;
+				key_in_caps = key_in_caps ? 0 : 1;
+				break;
+			}
+		}
+	}
+	//draw regions here to avoid layout change issues
+	keyboard_draw_region(last_touching, last_index, keyboard_fg);
+	keyboard_draw_region(key_touching, key_touching_index, keyboard_bg);
+}
+
+int keyboard_scankeys()
 {
-	static sregion_t *last_reg, *region;
-	static int last_pos;
-	int keys, vofs, hofs;
+	static sregion_t *region;
+	int keys;
 
 	int i, len, x, y, pos;
 	int count = sizeof(key_array) / sizeof(sregion_t);
+	int key;
 
 	if (keyboard_visible == 0)
 	{
-		last_reg = key_touching = 0;
-		last_pos = key_touching_index = -1;
-		return;
-	}
-
-
-	vofs = 156;
-	hofs = 32;
-	if (keyboard_visible == 2)
-	{
-		vofs = 220;
+		key_down = 0;
+		keyboard_mark(0, -1, 0);
+		return 0;
 	}
 
 	x = y = -1;
@@ -146,28 +198,34 @@ void keyboard_scankeys()
 
 	if (keys & KEY_TOUCH)
 	{
+		//if we are already touching something then bail
+		//this causes only the initial key to register
+		//and a single key per touch
+		if (key_in_touch) {
+			return key_down;
+		}
+
 		touchRead(&touch);
-		x = touch.px - hofs;
-		y = touch.py - vofs;
+		x = touch.px - keyboard_hofs;
+		y = touch.py - keyboard_vofs;
 		if (y < 0)
 		{
-			last_reg = key_touching = 0;
-			last_pos = key_touching_index = -1;
-			return;
+			keyboard_mark(0, -1, 1);
+			return key_down;
 		}
-		key_in_touch = 1;
 		//printf("Touch: %d %d\n",x,y);
 	}
 	else
 	{
-		key_in_touch = 0;
-		goto end_quick;
+		key_down = 0;
+		keyboard_mark(0, -1, 0);
+		return key_down;
 	}
 
-	region = &key_array[0];
+	region = key_array;
 	if (keyboard_visible == 2)
 	{
-		region = &key_button_array[0];
+		region = key_button_array;
 		count = 2;
 	}
 
@@ -175,13 +233,11 @@ void keyboard_scankeys()
 	{
 		if (y < region[i].y || y >(region[i].y + 16))
 		{
-			//printf("1: %d %d\n",y,key_array[i].y);
 			continue;
 		}
 		len = region[i].dx;
 		if (x < region[i].x || x >(region[i].x + len))
 		{
-			//printf("2: %d %d %d\n",x,key_array[i].x,key_array[i].dx);
 			continue;
 		}
 		if (region[i].type == 0)
@@ -193,123 +249,64 @@ void keyboard_scankeys()
 			pos = 0;
 		}
 
-		if (last_reg == &region[i] && last_pos == pos)
+		keyboard_mark(&region[i], pos, 1);
+		if (!key_touching) {
 			break;
+		}
+		switch (key_touching->type)
+		{
+		case 0:
+			key_down = key_in_shift ? key_touching->shift_text[key_touching_index] : (key_in_caps ? toupper(key_touching->text[key_touching_index]) : key_touching->text[key_touching_index]);
+			if (key_in_shift) {
+				//force a full keyboard refresh
+				keyboard_visible_last = -1;
+				key_in_shift = 0;
+			}
+			break;
+		default:
+			key_down = key_touching->key;
+			break;
+		}
 
-		key_touching = &region[i];
-		key_touching_index = pos;
-		return;
+		return key_down;
 	}
 
-end_quick:
-	last_reg = key_touching = 0;
-	last_pos = key_touching_index = -1;
+	//no key pressed but still in key touch
+	keyboard_mark(0, -1, 1);
+	return key_down;
 }
 
-static int key_down = -1;
-
 void keyboard_input() {
-	int key;
-	static int last_index = -1;
-	static sregion_t *last_touching = 0;
+	static int key_last = 0;
+	static int key = 0;
 	event_t event;
 
-	keyboard_scankeys();
-	if (key_touching_index == -1 && key_touching == 0)
+	key_last = key;
+	key = keyboard_scankeys();
+	if (key_last != 0 && key_last != key)
 	{
-		if (key_down != -1)
-		{
-			event.type = ev_keyup;
-			event.data1 = key_down;
-			D_PostEvent(&event);
-			//Key_Event(key_down, false);
-			key_down = -1;
-			last_index = -1;
-			last_touching = 0;
-		}
-		last_in_touch = key_in_touch;
-		return;
-	}
-	//printf("touching: %x %d\n",key_touching,key_touching_index);
-
-	switch (key_touching->type)
-	{
-	case 0:
-		key = key_in_shift ? key_touching->shift_text[key_touching_index] : (key_in_caps ? toupper(key_touching->text[key_touching_index]) : key_touching->text[key_touching_index]);
-		key_in_shift = 0;
-		break;
-	default:
-		key = key_touching->key;
-		break;
-	}
-	if (key_down != -1 && key != key_down &&
-		last_index != key_touching_index &&
-		last_touching != key_touching)
-	{
-		//printf("key up: %d %c\n", key, key);
+		//printf("key up: %d %c\n", key_last, key_last);
 		event.type = ev_keyup;
-		event.data1 = key_down;
+		event.data1 = key_last;
 		D_PostEvent(&event);
-		//Key_Event(key_down, false);
 	}
-	if (key != key_down && last_in_touch == 0 && key_in_touch != 0)
+
+	if (key != 0 && key != key_last)
 	{
 		//printf("key down: %d %c\n", key, key);
 		event.type = ev_keydown;
 		event.data1 = key;
 		D_PostEvent(&event);
-		//Key_Event(key, true);
-		key_down = key;
-
-		//check for shift
-		if (key == KEYD_RSHIFT)
-		{
-			key_in_shift = key_in_shift ? 0 : 1;
-		}
-		//check for caps
-		if (key == KEYD_CAPSLOCK)
-		{
-			key_in_caps = key_in_caps ? 0 : 1;
-			return;
-		}
-
-		if (key == 0x200) {
-			keyboard_visible = (keyboard_visible == 2 ? 1 : 2);
-		}
 	}
-
-	last_in_touch = key_in_touch;
-	last_index = key_touching_index;
-	last_touching = key_touching;
-
 }
 
 extern const u8 default_font_bin[];
-static u16 *vbuf;
+static u16 *keyboard_screen;
 
 void keyboard_draw_char(int x, int y, int c, u16 fg) {
-	//---------------------------------------------------------------------------------
-	//c -= currentConsole->font.asciiOffset;
 	if (c < 0 || c > 256) return;
 
 	u8 *fontdata = default_font_bin + (8 * c);
-
-	//int writingColor = currentConsole->fg;
-	//int screenColor = currentConsole->bg;
-
-	//if (currentConsole->flags & CONSOLE_COLOR_BOLD) {
-	//	writingColor += 8;
-	//}
-	//else if (currentConsole->flags & CONSOLE_COLOR_FAINT) {
-	//	writingColor += 16;
-	//}
-
-	//if (currentConsole->flags & CONSOLE_COLOR_REVERSE) {
-	//	int tmp = writingColor;
-	//	writingColor = screenColor;
-	//	screenColor = tmp;
-	//}
-
 	u16 bg = RGB8_to_565(0, 0, 0);// colorTable[screenColor];
 	//u16 fg = RGB8_to_565(192, 192, 192);// colorTable[writingColor];
 
@@ -327,14 +324,8 @@ void keyboard_draw_char(int x, int y, int c, u16 fg) {
 	//if (currentConsole->flags & CONSOLE_CROSSED_OUT) b4 = 0xff;
 
 	u8 mask = 0x80;
-
-
 	int i;
-
-	//int x = (currentConsole->cursorX + currentConsole->windowX) * 8;
-	//int y = ((currentConsole->cursorY + currentConsole->windowY) * 8);
-
-	u16 *screen = &vbuf[(x * 240) + (239 - (y + 7))];
+	u16 *screen = &keyboard_screen[(x * 240) + (239 - (y + 7))];
 
 	for (i = 0; i<8; i++) {
 		if (b8 & mask) { *(screen++) = fg; }
@@ -361,7 +352,7 @@ void keyboard_draw_char(int x, int y, int c, u16 fg) {
 
 void vline(int x, int y, int len, u16 color) {
 	int i;
-	u16 *screen = &vbuf[(x * 240) + (239 - y)];
+	u16 *screen = &keyboard_screen[(x * 240) + (239 - y)];
 	for (i = 0; i < len; i++) {
 		*screen-- = color;
 	}
@@ -369,179 +360,187 @@ void vline(int x, int y, int len, u16 color) {
 
 void hline(int x, int y, int len, u16 color) {
 	int i;
-	u16 *screen = &vbuf[(x * 240) + (239 - y)];
+	u16 *screen = &keyboard_screen[(x * 240) + (239 - y)];
 	for (i = 0; i < len; i++) {
 		*screen = color;
 		screen += 240;
 	}
 }
 
+void keyboard_draw_region(sregion_t *region, int index, u16 c) {
+	int len;
+	char *ch;
+	u16 *screen;
+	int j, k, pos;
+	int x, y;
+	
+	if (region == 0) {
+		return;
+	}
+
+	//bail if the keyboard is set to redraw
+	if (keyboard_visible != keyboard_visible_last) {
+		return;
+	}
+	
+	x = keyboard_hofs + region->x;
+	y = keyboard_vofs + region->y;
+	screen = &keyboard_screen[(x * 240) + (239 - (y + 1 + 12))];
+
+	if (region->type == 0)
+	{
+		ch = key_in_shift ? region->shift_text : region->text;
+		pos = 0;
+		while (ch && *ch)
+		{
+			if (index == -1 || index == pos) {
+				//left/right sides
+				vline(x, y + 1, 14, c);
+				vline(x + 14, y + 1, 14, c);
+				//top/bottom
+				hline(x + 1, y + 1, 14, c);
+				hline(x + 1, y + 14, 14, c);
+
+				k = key_in_caps ? toupper(*ch) : *ch;
+				keyboard_draw_char(x + 3, y + 4, k, c);
+			}
+			ch++;
+			x += 16;
+			pos++;
+		}
+	}
+	else if (region->type == 1)
+	{
+		if ((region->key == KEYD_CAPSLOCK && key_in_caps) || (region->key == KEYD_RSHIFT && key_in_shift)) {
+			c = keyboard_bg;
+		}
+		else if ((region->key == KEYD_CAPSLOCK && !key_in_caps) || (region->key == KEYD_RSHIFT && !key_in_shift)) {
+			c = keyboard_fg;
+		}
+		ch = region->text;
+		len = strlen(ch) * 8 + 4;
+
+		//left/right sides
+		vline(x, y + 1, 14, c);
+		vline(x + len, y + 1, 14, c);
+		//top/bottom
+		hline(x + 1, y + 1, len, c);
+		hline(x + 1, y + 14, len, c);
+
+		while (ch && *ch)
+		{
+			keyboard_draw_char(x + 3, y + 4, *ch, c);
+			ch++;
+			x += 8;
+		}
+	}
+	else if (region->type == 2)
+	{
+		for (j = 0; j<12; j++)
+		{
+			for (k = 0; k<12; k++)
+			{
+				if (key_arrow[11 - k][j])
+					screen[k] = c;
+			}
+			screen += 240;
+		}
+	}
+	else if (region->type == 3)
+	{
+		for (j = 0; j<12; j++)
+		{
+			for (k = 0; k<12; k++)
+			{
+				if (key_arrow[j][11 - k])
+					screen[k] = c;
+			}
+			screen += 240;
+		}
+	}
+	else if (region->type == 4)
+	{
+		for (j = 0; j<12; j++)
+		{
+			for (k = 0; k<12; k++)
+			{
+				if (key_arrow[k][j])
+					screen[k] = c;
+			}
+			screen += 240;
+		}
+	}
+	else if (region->type == 5)
+	{
+		for (j = 0; j<12; j++)
+		{
+			for (k = 0; k<12; k++)
+			{
+				if (key_arrow[11 - j][11 - k])
+					screen[k] = c;
+			}
+			screen += 240;
+		}
+	}
+	else if (region->type == 6)
+	{
+		//left/right sides
+		vline(x, y + 1, 14, c);
+		vline(x + 14, y + 1, 14, c);
+		//top/bottom
+		hline(x + 1, y + 1, 14, c);
+		hline(x + 1, y + 14, 14, c);
+	}
+}
+
 void keyboard_draw()
 {
-	int i, j, k, pos;
-	int x;
-	int y;
-	int len, vofs, hofs;
-	char *buf, *ch;
+	int i, h;
 	sregion_t *region;
-	int count = sizeof(key_array) / sizeof(sregion_t);
+	int count;
 	u16 width, height;
-	u16 fg = RGB8_to_565(192, 192, 192);// colorTable[writingColor];
-	u16 bg = RGB8_to_565(204, 102, 0);// colorTable[writingColor];
-	u16 *screen;
-
 
 	if (keyboard_visible == 0)
 	{
 		return;
 	}
 
-	vbuf = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, &width, &height);;
+	keyboard_screen = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, &width, &height);;
 
-	//erase the old keyboard
+	//see if the keyboard layout has changed
 	if (keyboard_visible != keyboard_visible_last) {
-		int i;
-		int h = (keyboard_visible_last == 1 ? 90 : 20) * 2;
-		for (i = 0; i < 320; i++) {
-			memset(vbuf + i * 240, 0, h);
+		keyboard_vofs = 152;
+		keyboard_hofs = 32;
+		if (keyboard_visible == 2) {
+			keyboard_vofs = 216;
 		}
-		keyboard_visible_last = keyboard_visible;
-		consoleSetWindow(0, 0, 0, 40, keyboard_visible == 1 ? 15 : 24);
+		//clear the console and set window size
 		consoleClear();
+		memset(keyboard_screen, 0, 320*240*2);
+		h = keyboard_visible == 1 ? 19 : 24;
+		consoleSetWindow(0, 0, 0, 40, h);
+
+		//printf("full refresh: %d %d\n", keyboard_visible, keyboard_visible_last);
+		keyboard_visible_last = keyboard_visible;
+	}
+	else {
+		//the keyboard layout has not changed so no need to draw everything
+		return;
 	}
 
-	vofs = 156;
-	hofs = 32;
-
-	region = &key_array[0];
+	region = key_array;
+	count = sizeof(key_array) / sizeof(sregion_t);
 	if (keyboard_visible == 2)
 	{
-		region = &key_button_array[0];
+		region = key_button_array;
 		count = 2;
-		vofs = 220;
 	}
+
 
 
 	for (i = 0; i<count; i++)
 	{
-		u16 c = key_touching == &region[i] ? bg : fg;
-		x = hofs + region[i].x;
-		y = vofs + region[i].y;
-
-		if (region[i].type == 0)
-		{
-			ch = key_in_shift ? region[i].shift_text : region[i].text;
-			pos = 0;
-			while (ch && *ch)
-			{
-				if (key_touching == &region[i] && key_touching_index == pos) {
-					c = bg;
-				}
-				else {
-					c = fg;
-				}
-				//left/right sides
-				vline(x     , y +  1, 14, c);
-				vline(x + 14, y +  1, 14, c);
-				//top/bottom
-				hline(x +  1, y +  1, 14, c);
-				hline(x +  1, y + 14, 14, c);
-
-				k = key_in_caps ? toupper(*ch) : *ch;
-				keyboard_draw_char(x + 3, y + 4, k, c);
-				ch++;
-				x += 16;
-				pos++;
-			}
-		}
-		else if (region[i].type == 1)
-		{
-			ch = region[i].text;
-			len = strlen(ch) * 8 + 4;
-			if (key_touching == &region[i] ||
-				(key_in_caps && region[i].key == KEYD_CAPSLOCK) ||
-				(key_in_shift && region[i].key == KEYD_RSHIFT)) {
-				c = bg;
-			}
-			else {
-				c = fg;
-			}
-
-			//left/right sides
-			vline(x      , y +  1,  14, c);
-			vline(x + len, y +  1,  14, c);
-			//top/bottom
-			hline(x +   1, y +  1, len, c);
-			hline(x +   1, y + 14, len, c);
-
-			while (ch && *ch)
-			{
-				keyboard_draw_char(x + 3, y + 4, *ch, c);// , vbuf);
-				ch++;
-				x += 8;
-			}
-		}
-		else if (region[i].type == 2)
-		{
-			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
-			for (j = 0; j<12; j++)
-			{
-				for (k = 0; k<12; k++)
-				{
-					if (key_arrow[11-k][j])
-						screen[k] = c;
-				}
-				screen += 240;
-			}
-		}
-		else if (region[i].type == 3)
-		{
-			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
-			for (j = 0; j<12; j++)
-			{
-				for (k = 0; k<12; k++)
-				{
-					if (key_arrow[j][11 - k])
-						screen[k] = c;
-				}
-				screen += 240;
-			}
-		}
-		else if (region[i].type == 4)
-		{
-			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
-			for (j = 0; j<12; j++)
-			{
-				for (k = 0; k<12; k++)
-				{
-					if (key_arrow[k][j])
-						screen[k] = c;
-				}
-				screen += 240;
-			}
-		}
-		else if (region[i].type == 5)
-		{
-			screen = &vbuf[(x * 240) + (239 - (y + 1 + 12))];
-			for (j = 0; j<12; j++)
-			{
-				for (k = 0; k<12; k++)
-				{
-					if (key_arrow[11 - j][11 - k])
-						screen[k] = c;
-				}
-				screen += 240;
-			}
-		}
-		else if (region[i].type == 6)
-		{
-			//left/right sides
-			vline(x, y + 1, 14, c);
-			vline(x + 14, y + 1, 14, c);
-			//top/bottom
-			hline(x + 1, y + 1, 14, c);
-			hline(x + 1, y + 14, 14, c);
-		}
+		keyboard_draw_region(&region[i], -1, keyboard_fg);
 	}
 
 }
