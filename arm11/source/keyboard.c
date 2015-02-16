@@ -505,7 +505,7 @@ void keyboard_draw()
 		return;
 	}
 
-	keyboard_screen = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, &width, &height);;
+	keyboard_screen = (u16*)gfxGetFramebuffer(GFX_BOTTOM, GFX_LEFT, &width, &height);
 
 	//see if the keyboard layout has changed
 	if (keyboard_visible != keyboard_visible_last) {

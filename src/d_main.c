@@ -208,6 +208,8 @@ gamestate_t    wipegamestate = GS_DEMOSCREEN;
 extern boolean setsizeneeded;
 extern int     showMessages;
 extern int renderframe;
+static volatile float* slider =
+(float*)0x1FF81080;
 
 void D_Display (void)
 {
@@ -324,7 +326,7 @@ drawagain:
 
   // normal update
   if (!wipe || (V_GetMode() == VID_MODEGL)) {
-	  if (renderframe) {
+	  if (renderframe || *slider == 0.0f) {
 		  copy_screen(GFX_LEFT);
 		  I_FinishUpdate();              // page flip or blit buffer
 	  }
@@ -408,7 +410,7 @@ static void D_DoomLoop(void)
 			auto_shot_count = auto_shot_time;
 			M_DoScreenShot(auto_shot_fname);
 		}
-		gspWaitForEvent(GSPEVENT_VBlank0, false);
+		//gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
 
 	gfxExit();
