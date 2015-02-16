@@ -167,10 +167,16 @@ extern int audio_initialized;
 void S_Init(int sfxVolume, int musicVolume) {
 	nosfxparm = 0;
 	nomusicparm = 0;
+	audio_initialized = 0;
 	//return;
 
 	if (csndInit() == 0) {
 		audio_initialized = 1;
+	}
+	else {
+		nosfxparm = 1;
+		nomusicparm = 1;
+		return;
 	}
 	MIX_init();
 	mus_init();
