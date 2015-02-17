@@ -2,6 +2,8 @@
 #include "d_main.h"
 #include "doomstat.h"
 
+#include <3ds.h>
+
 int snd_card = 1;
 int mus_card = 1;
 int idmusnum;
@@ -150,7 +152,6 @@ void S_Start(void) {
 	S_ChangeMusic(mnum, true);
 }
 
-
 //============================================================
 
 void MIX_UpdateSounds(mobj_t *listener);
@@ -164,6 +165,36 @@ void S_UpdateSounds(void* listener_p) {
 }
 void mus_init();
 extern int audio_initialized;
+
+#if 0
+static Result CSND_AcquireSoundChannels(Handle csndHandle, u32* channelMask)
+{
+	Result ret = 0;
+	u32 *cmdbuf = getThreadCommandBuffer();
+
+	cmdbuf[0] = 0x00050000;
+
+	if ((ret = svcSendSyncRequest(csndHandle)) != 0)return ret;
+
+	*channelMask = cmdbuf[2];
+
+	return (Result)cmdbuf[1];
+}
+
+static Result CSND_ReleaseSoundChannels(Handle csndHandle)
+{
+	Result ret = 0;
+	u32 *cmdbuf = getThreadCommandBuffer();
+
+	cmdbuf[0] = 0x00060000;
+
+	if ((ret = svcSendSyncRequest(csndHandle)) != 0)return ret;
+
+	return (Result)cmdbuf[1];
+}
+#endif
+extern u32 csndChannels;
+
 void S_Init(int sfxVolume, int musicVolume) {
 	nosfxparm = 0;
 	nomusicparm = 0;
@@ -171,9 +202,33 @@ void S_Init(int sfxVolume, int musicVolume) {
 	//return;
 
 	if (csndInit() == 0) {
+#if 1
+		printf("csndInit ok!\ncsndChannels: %08x\n", csndChannels);
+#else
+		Result ret = 0;
+		Handle csndHandle;
+		u32 __channels=0;
+		printf("csndInit ok!\ncsndChannels: %08x\n", csndChannels);
+		ret = srvGetServiceHandle(&csndHandle, "csnd:SND");
+		if (ret != 0) {
+			printf("handle failed\n");
+		}
+		ret = CSND_ReleaseSoundChannels(csndHandle);
+		if (ret != 0) {
+			printf("CSND_ReleaseSoundChannels failed\n");
+		}
+		ret = CSND_AcquireSoundChannels(csndHandle, &__channels);
+		if (ret != 0) {
+			printf("CSND_AcquireSoundChannels failed\n");
+		}
+		printf("channels: %08x\n", __channels);
+		gfxFlushBuffers();
+		while (1);
+#endif
 		audio_initialized = 1;
 	}
 	else {
+		printf("csndInit failed!\n");
 		nosfxparm = 1;
 		nomusicparm = 1;
 		return;

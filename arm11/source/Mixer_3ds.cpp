@@ -4,6 +4,7 @@
 #include <string.h>
 
 void MixerHardware3DS::init() {
+	Result ret = 0;
 	m_bufferSize = 4096;
 
 	m_soundBuffer = (byte *)linearAlloc(m_bufferSize);
@@ -13,7 +14,10 @@ void MixerHardware3DS::init() {
 	m_lastPos = 0;
 	clear();
 
-	csndPlaySound(0x10, SOUND_REPEAT | SOUND_FORMAT_8BIT, m_speed, (u32*)m_soundBuffer, (u32*)m_soundBuffer, m_bufferSize);
+	ret = csndPlaySound(0x10, SOUND_REPEAT | SOUND_FORMAT_8BIT, m_speed, (u32*)m_soundBuffer, (u32*)m_soundBuffer, m_bufferSize);
+	if (ret != 0) {
+		printf("mus init failed\n");
+	}
 	m_start = svcGetSystemTick();
 }
 

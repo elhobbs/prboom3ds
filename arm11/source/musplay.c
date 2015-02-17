@@ -18,6 +18,7 @@
 #include <malloc.h>
 
 #include <3ds.h>
+#include "d_main.h"
 
 
 #ifdef WIN32
@@ -916,7 +917,7 @@ void mus_play_timer(void) {
 	MLtime++;
 }
 
-#define ADLIB_STACK_SIZE 0x1000
+#define ADLIB_STACK_SIZE 0x8000
 Handle adlibHandle = 0;
 static u64 adlibStack[ADLIB_STACK_SIZE / sizeof(u64)]; //u64 so that it's 8-byte aligned
 
@@ -958,6 +959,12 @@ void mus_frame() {
 }
 
 static void adlibThreadMain(void* arg) {
+	//make sure the mus thread starts
+	svcWaitSynchronization(musRequest, U64_MAX);
+	svcClearEvent(musRequest);
+	//indicate we finished the request
+	svcSignalEvent(musResponse);
+
 	do {
 		svcWaitSynchronization(musRequest, U64_MAX);
 		svcClearEvent(musRequest);
@@ -990,6 +997,7 @@ static void adlibThreadMain(void* arg) {
 }
 
 void mus_setup_timer() {
+	Result ret = 0;
 	//timerStart(2, ClockDivider_1024, TIMER_FREQ_1024(140), mus_play_timer);
 	svcCreateEvent(&musRequest, 0);
 	svcCreateEvent(&musResponse, 0);
@@ -998,7 +1006,21 @@ void mus_setup_timer() {
 	mixer_init();
 	adlib_mus = adlib_pos = mixer_pos();
 
-	svcCreateThread(&adlibHandle, adlibThreadMain, 0x0, (u32*)((char*)adlibStack + sizeof(adlibStack)), 0x18, 1);
+	printf("starting music thread...");
+	ret = svcCreateThread(&adlibHandle, adlibThreadMain, 0x0, (u32*)((char*)adlibStack + sizeof(adlibStack)), 0x18, 0xfffffffe);
+	if (ret != 0) {
+		printf(" failed %d\n", ret);
+		gfxFlushBuffers();
+		svcSleepThread(3000000000LL);
+		nomusicparm = 1;
+		return;
+	}
+	svcSignalEvent(musRequest);
+	svcWaitSynchronization(musResponse, U64_MAX);
+	svcClearEvent(musResponse);
+	printf(" done\n");
+	gfxFlushBuffers();
+	svcSleepThread(3000000000LL);
 }
 
 void mus_init() {
