@@ -156,6 +156,8 @@ void S_Start(void) {
 
 void MIX_UpdateSounds(mobj_t *listener);
 void MIX_init();
+void MIX_exit();
+void mux_exit();
 
 void S_UpdateSounds(void* listener_p) {
 	mobj_t *listener = (mobj_t*)listener_p;
@@ -235,4 +237,19 @@ void S_Init(int sfxVolume, int musicVolume) {
 	}
 	MIX_init();
 	mus_init();
+}
+
+void S_Exit() {
+	Result ret;
+	if (!audio_initialized) {
+		return;
+	}
+
+	S_StopMusic();
+	S_Stop();
+	MIX_exit();
+	mus_exit();
+	ret = csndExit();
+	printf("csndExit %d\n", ret);
+	//svcSleepThread(5000000000LL);
 }

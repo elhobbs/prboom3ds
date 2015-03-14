@@ -309,6 +309,20 @@ typedef enum {
 #define KEYD_KEYPADPLUS   (0x100 + '+')
 #define KEYD_KEYPADPERIOD (0x100 + '.')
 
+//elh - add 3ds controls
+#define KEYD_CSTICK_RIGHT 0x200
+#define KEYD_CSTICK_LEFT  0x201
+#define KEYD_CSTICK_UP    0x202
+#define KEYD_CSTICK_DOWN  0x203
+
+#define KEYD_CPAD_RIGHT 0x204
+#define KEYD_CPAD_LEFT  0x205
+#define KEYD_CPAD_UP    0x206
+#define KEYD_CPAD_DOWN  0x207
+
+#define KEYD_ZL  0x208
+#define KEYD_ZR  0x209
+
 // phares 4/19/98:
 // Defines Setup Screen groups that config variables appear in.
 // Used when resetting the defaults for every item in a Setup group.

@@ -956,6 +956,10 @@ void mus_frame() {
 	if ((adlib_mus - mixer_pos()) > 0) {
 		svcSleepThread((adlib_mus - mixer_pos()) * 1000000000LL / 32728);
 	}
+	else {
+		//we have to sleep a little or things can hang
+		svcSleepThread(100);
+	}
 }
 
 static void adlibThreadMain(void* arg) {
@@ -1020,7 +1024,7 @@ void mus_setup_timer() {
 	svcClearEvent(musResponse);
 	printf(" done\n");
 	gfxFlushBuffers();
-	svcSleepThread(3000000000LL);
+	//svcSleepThread(3000000000LL);
 }
 
 void mus_init() {
@@ -1067,7 +1071,7 @@ void mus_exit() {
 	svcClearEvent(musResponse);
 	printf("shutdown complete\n");
 	mixer_exit();
-	svcSleepThread(5000000000LL);
+	//svcSleepThread(5000000000LL);
 
 	//wait for the thread to end
 	svcWaitSynchronization(adlibHandle, U64_MAX);

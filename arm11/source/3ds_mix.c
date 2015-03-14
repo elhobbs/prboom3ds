@@ -124,6 +124,11 @@ void MIX_init() {
 	sound_start = svcGetSystemTick();
 }
 
+void MIX_exit() {
+	CSND_SetPlayState(0x8, 0);
+	CSND_SetPlayState(0x9, 0);
+}
+
 void MIX_TransferPaintBuffer(int endtime)
 {
 	int 	out_idx;

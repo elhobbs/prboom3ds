@@ -37,20 +37,76 @@ bool weapon_shotgun_cycled = false;
 void AM_ZoomOut();
 void AM_ZoomIn();
 
-touchPosition	g_lastTouch = { 0, 0, 0, 0 };
-touchPosition	g_currentTouch = { 0, 0, 0, 0 };
+touchPosition	g_lastTouch = { 0, 0 };
+touchPosition	g_currentTouch = { 0, 0 };
+
+//0=DS Bit,1=game key, 2=menu key
+int keys3ds[32][3] = {
+	{ KEY_A, KEYD_RCTRL, KEYD_ENTER }, //bit 00
+	{ KEY_B, ' ', KEYD_ESCAPE }, //bit 01
+	{ KEY_SELECT, KEYD_ENTER, 0 }, //bit 02
+	{ KEY_START, KEYD_ESCAPE, 0 }, //bit 03
+	{ KEY_DRIGHT, KEYD_RIGHTARROW, 0 }, //bit 04
+	{ KEY_DLEFT, KEYD_LEFTARROW, 0 }, //bit 05
+	{ KEY_DUP, KEYD_UPARROW, 0 }, //bit 06
+	{ KEY_DDOWN, KEYD_DOWNARROW, 0 }, //bit 07
+	{ KEY_R, '.', 0 }, //bit 08
+	{ KEY_L, ',', 0 }, //bit 09
+	{ KEY_X, KEYD_RSHIFT, 0 }, //bit 10
+	{ KEY_Y, KEYD_RCTRL, 'y' }, //bit 11
+	{ 0, 0, 0 }, //bit 12
+	{ 0, 0, 0 }, //bit 13
+	{ KEY_ZL, KEYD_RCTRL, 0 }, //bit 14
+	{ KEY_ZR, KEYD_RCTRL, 0 }, //bit 15
+	{ 0, 0, 0 }, //bit 16
+	{ 0, 0, 0 }, //bit 17
+	{ 0, 0, 0 }, //bit 18
+	{ 0, 0, 0 }, //bit 19
+	{ 0, 0, 0 }, //bit 20
+	{ 0, 0, 0 }, //bit 21
+	{ 0, 0, 0 }, //bit 22
+	{ 0, 0, 0 }, //bit 23
+	{ KEY_CSTICK_RIGHT, KEYD_CSTICK_RIGHT, 0 }, //bit 24
+	{ KEY_CSTICK_LEFT, KEYD_CSTICK_LEFT, 0 }, //bit 25
+	{ KEY_CSTICK_UP, KEYD_CSTICK_UP, 0 }, //bit 26
+	{ KEY_CSTICK_DOWN, KEYD_CSTICK_DOWN, 0 }, //bit 27
+	{ KEY_CPAD_RIGHT, KEYD_CPAD_RIGHT, 0 }, //bit 28
+	{ KEY_CPAD_LEFT, KEYD_CPAD_LEFT, 0 }, //bit 29
+	{ KEY_CPAD_UP, KEYD_CPAD_UP, 0 }, //bit 30
+	{ KEY_CPAD_DOWN, KEYD_CPAD_DOWN, 0 }, //bit 31
+};
 
 void DS_Controls(void) {
 	touchPosition touch;
 
 	scanKeys();	// Do DS input housekeeping
-	u16 keys = keysDown();
-	u16 held = keysHeld();
+	u32 keys = keysDown();
+	u32 held = keysHeld();
+	u32 up = keysUp();
+	int i;
 
 	if (held & KEY_TOUCH) {
 		touchRead(&touch);
 	}
+#if 1
+	for(i=0;i<32;i++) {
+		//send key down
+		if (keys3ds[i][0] & keys) {
+			event_t ev;
+			ev.type = ev_keydown;
+			ev.data1 = keys3ds[i][(menuactive && keys3ds[i][2]) ? 2 : 1];
+			D_PostEvent(&ev);
+		}
+		//send key up
+		if (keys3ds[i][0] & up) {
+			event_t ev;
+			ev.type = ev_keyup;
+			ev.data1 = keys3ds[i][(menuactive && keys3ds[i][2]) ? 2 : 1];
+			D_PostEvent(&ev);
+		}
+	}
 
+#else
 	/*if (held & KEY_B) {
 		if (held & KEY_L) {
 			AM_ZoomIn();
@@ -287,6 +343,7 @@ void DS_Controls(void) {
 		D_PostEvent(&event);
 	}
 
+#endif
 	if (keysDown() & KEY_TOUCH)
 	{
 		touchRead(&g_lastTouch);

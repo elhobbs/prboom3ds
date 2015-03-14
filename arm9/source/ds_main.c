@@ -11,10 +11,10 @@
 
 char *DS_USERNAME = "username";
 
-void con_init();
-void con_draw();
-bool SD_init();
 void D_DoomMain(void);
+void Z_Close(void);
+void S_Exit();
+void M_SaveDefaults(void);
 
 void drawFrame()
 {
@@ -44,10 +44,6 @@ void drawFrame()
 static void sys_init() {
 	Result ret;
 
-	srvInit();
-	aptInit();
-	hidInit(NULL);
-	irrstInit(NULL);
 	gfxInitDefault();
 
 	gfxSet3D(true);
@@ -63,6 +59,13 @@ static void sys_init() {
 	switchConsole();
 	gfxFlushBuffers();
 	gfxSwapBuffers();
+}
+
+void I_Quit() {
+	S_Exit();
+	M_SaveDefaults();
+	gfxExit();
+	svcSleepThread(5000000000LL);
 }
 
 // Jefklak 19/11/06 - Switches lower DS screen back to console or vice versa.
@@ -121,7 +124,7 @@ int main(int argc, char *argv[]) {
 	//PrintVer();
 
 	/* cph - Z_Close must be done after I_Quit, so we register it first. */
-	//atexit(Z_Close);
+	atexit(Z_Close);
 	/*
 	killough 1/98:
 
@@ -139,7 +142,7 @@ int main(int argc, char *argv[]) {
 	*/
 	Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
-	//atexit(I_Quit);
+	atexit(I_Quit);
 	
 	//I_PreInitGraphics();
 	D_DoomMain();
