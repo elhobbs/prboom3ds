@@ -131,16 +131,16 @@ char* I_FindFile(const char* wfname, const char* ext)
 			d = DOOMWADDIR;
 			break;
 		case 4:
-			d = "/usr/share/games/doom";
+			d = "/usr/share/games/doom/";
 			break;
 		case 5:
-			d = "/usr/local/share/games/doom";
+			d = "/usr/local/share/games/doom/";
 			break;
 		case 6:
 			d = I_DoomExeDir();
 			break;
 		case 3:
-			s = "doom";
+			s = "doom/";
 		case 7:
 			if (!(d = getenv("HOME"))) continue;
 			break;
@@ -246,9 +246,10 @@ int(*I_GetTime)(void) = I_GetTime_Error;
 
 const char *I_DoomExeDir(void)
 {
-	static char *base;
+	static char *base = 0;
 #if 1
 	static const char current_dir_dummy[] = { "sdmc:/" }; // proff - rem extra slash 8/21/03
+	if (base) return base;
 	base = malloc(PATH_MAX);
 	if (!getcwd(base, PATH_MAX))
 		strcpy(base, current_dir_dummy);

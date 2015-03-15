@@ -249,6 +249,8 @@ void S_Exit() {
 	S_Stop();
 	MIX_exit();
 	mus_exit();
+	//flush csnd command buffers
+	csndExecCmds(true);
 	ret = csndExit();
 	printf("csndExit %d\n", ret);
 	//svcSleepThread(5000000000LL);

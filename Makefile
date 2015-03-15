@@ -22,6 +22,9 @@ BUILD		:=	build
 SOURCES		:=	src arm9/source arm11/source
 DATA		:=	dat
 INCLUDES	:=	include src arm9/include arm11/include
+APP_TITLE	:=	prboom3ds
+APP_DESCRIPTION	:= prboom for the 3ds
+APP_AUTHOR	:= elhobbs
 
 
 export	OUTPUT_FORMAT	?= 3dsx
@@ -95,6 +98,23 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 
+ifeq ($(strip $(ICON)),)
+	icons := $(wildcard *.png)
+	ifneq (,$(findstring $(TARGET).png,$(icons)))
+		export APP_ICON := $(TOPDIR)/$(TARGET).png
+	else
+		ifneq (,$(findstring icon.png,$(icons)))
+			export APP_ICON := $(TOPDIR)/icon.png
+		endif
+	endif
+else
+	export APP_ICON := $(TOPDIR)/$(ICON)
+endif
+
+ifeq ($(strip $(NO_SMDH)),)
+	export _3DSXFLAGS += --smdh=$(CURDIR)/$(TARGET).smdh
+endif
+
 .PHONY: $(BUILD) clean all
  
 #---------------------------------------------------------------------------------
@@ -128,7 +148,7 @@ all:	$(OUTPUT).$(OUTPUT_FORMAT)
 #---------------------------------------------------------------------------------
 # main targets
 #---------------------------------------------------------------------------------
-$(OUTPUT).3dsx	:	$(OUTPUT).elf
+$(OUTPUT).3dsx	:	$(OUTPUT).elf $(OUTPUT).smdh
 $(OUTPUT).elf	:	$(OFILES)
 $(OUTPUT).cia	:	$(OUTPUT).elf
 	@echo built ... $< $@ 
