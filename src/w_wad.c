@@ -470,6 +470,15 @@ void W_Init(void)
   W_InitCache();
 }
 
+void W_Exit() {
+	int i;
+	for (i = 0; i < numwadfiles; i++) {
+		if (wadfiles[i].handle) {
+			fclose(wadfiles[i].handle);
+		}
+	}
+}
+
 void W_ReleaseAllWads(void)
 {
 	W_DoneCache();

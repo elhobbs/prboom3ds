@@ -15,6 +15,7 @@ void D_DoomMain(void);
 void Z_Close(void);
 void S_Exit();
 void M_SaveDefaults(void);
+void W_Exit();
 
 void drawFrame()
 {
@@ -64,6 +65,7 @@ static void sys_init() {
 void I_Quit() {
 	S_Exit();
 	M_SaveDefaults();
+	W_Exit();
 	gfxExit();
 	svcSleepThread(5000000000LL);
 }
