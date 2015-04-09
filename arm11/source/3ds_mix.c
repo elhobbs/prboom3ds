@@ -106,6 +106,7 @@ void mix_stop() {
 }
 
 void MIX_init() {
+	u8 playing = 0;
 
 	MIX_InitScaletable();
 	
@@ -121,6 +122,19 @@ void MIX_init() {
 
 	csndPlaySound(0x8, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, (u32*)c_snd_Buffer_left, (u32*)c_snd_Buffer_left, SND_SAMPLES);
 	csndPlaySound(0x9, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, (u32*)c_snd_Buffer_right, (u32*)c_snd_Buffer_right, SND_SAMPLES);
+	//try to start stalled channels
+	csndIsPlaying(0x8, &playing);
+	if (playing == 0) {
+		CSND_SetPlayState(0x8, 1);
+	}
+	//try to start stalled channels
+	csndIsPlaying(0x9, &playing);
+	if (playing == 0) {
+		CSND_SetPlayState(0x9, 1);
+	}
+	//flush csnd command buffers
+	csndExecCmds(true);
+
 	sound_start = svcGetSystemTick();
 }
 

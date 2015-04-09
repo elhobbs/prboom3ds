@@ -18,6 +18,14 @@ void MixerHardware3DS::init() {
 	if (ret != 0) {
 		printf("mus init failed\n");
 	}
+	//try to start stalled channels
+	u8 playing = 0;
+	csndIsPlaying(0x10, &playing);
+	if (playing == 0) {
+		CSND_SetPlayState(0x10, 1);
+	}
+	//flush csnd command buffers
+	csndExecCmds(true);
 	m_start = svcGetSystemTick();
 }
 

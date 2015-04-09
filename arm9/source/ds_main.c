@@ -149,5 +149,7 @@ int main(int argc, char *argv[]) {
 	//I_PreInitGraphics();
 	D_DoomMain();
 
+	exit(0);
+
 	return 0;
 }
