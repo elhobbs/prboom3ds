@@ -9,6 +9,8 @@
 #include "lprintf.h"
 #include "m_argv.h"
 
+#include "khax.h"
+
 char *DS_USERNAME = "username";
 
 void D_DoomMain(void);
@@ -46,13 +48,17 @@ static void sys_init() {
 	Result ret;
 
 	gfxInitDefault();
+	//con_init();
+	consoleInit(GFX_BOTTOM, 0);
 
+	Result result = khaxInit();
+	printf("khaxInit returned %08lx\n", result);
+	svcSleepThread(2000000000);
+	
 	gfxSet3D(true);
 
 	srand(svcGetSystemTick());
 
-	//con_init();
-	consoleInit(GFX_BOTTOM, 0);
 	//consoleSetWindow(0, 0, 0, 40, 15);
 	keyboard_init();
 	//SD_init();
@@ -66,6 +72,7 @@ void I_Quit() {
 	S_Exit();
 	M_SaveDefaults();
 	W_Exit();
+	khaxExit();
 	gfxExit();
 	svcSleepThread(5000000000LL);
 }

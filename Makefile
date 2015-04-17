@@ -19,9 +19,9 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 export TARGET		:=	$(shell basename $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	src arm9/source arm11/source
+SOURCES		:=	src arm9/source arm11/source khax
 DATA		:=	dat
-INCLUDES	:=	include src arm9/include arm11/include
+INCLUDES	:=	include src arm9/include arm11/include khax
 APP_TITLE	:=	prboom3ds
 APP_DESCRIPTION	:= prboom for the 3ds
 APP_AUTHOR	:= elhobbs
