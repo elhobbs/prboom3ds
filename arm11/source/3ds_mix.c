@@ -334,20 +334,22 @@ void MIX_Update_(void)
 	// Updates DMA time
 	MIX_UpdateTime();
 
-	diff = paintedtime - soundtime;
+	//diff = paintedtime - soundtime;
 	//iprintf("%d %d %d\n", paintedtime, soundtime, diff);
 	// check to make sure that we haven't overshot
-	if (diff < 0)
-	{
+	//if (diff < 0)
+	//{
 		//iprintf("S_Update_ : overflow\n    %d %d\n", paintedtime, soundtime);
-		paintedtime = soundtime;
-	}
+	//	paintedtime = soundtime;
+	//}
 
 	// mix ahead of current position
 	endtime = soundtime + snd_Speed / 10;//_snd_mixahead.value * shm->speed;
-	samps = snd_Samples/2;//shm->samples >> (shm->channels-1);
-	if (endtime - soundtime > samps)
-		endtime = soundtime + samps;
+	samps = snd_Samples;
+	if (endtime - paintedtime > snd_Samples) {
+		printf("%8d %8d %8d\n", soundtime, paintedtime, endtime);
+		paintedtime = soundtime;
+	}
 	//iprintf("%d %d\n", diff, endtime - paintedtime);
 
 	//printf("mixing %d %d %d\n", soundtime, paintedtime, endtime);

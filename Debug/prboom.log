@@ -1,4 +1,4 @@
-﻿Build started 4/17/2015 7:43:11 PM.
+﻿Build started 4/18/2015 11:28:10 AM.
      1>Project "C:\devl\prboom3ds\prboom.vcxproj" on node 2 (Build target(s)).
      1>Build:
          make -r 2>&1 | sed -e 's/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/
