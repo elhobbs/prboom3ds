@@ -300,16 +300,15 @@ void MIX_PaintChannels(int endtime)
 	}
 }
 
+#define TICKS_PER_SEC_LL 268111856LL
+
 int MIX_SamplePos() {
-	u64 delta = svcGetSystemTick() - sound_start;
+	u64 delta = (svcGetSystemTick() - sound_start);
+	u64 samples = delta * 11025 / TICKS_PER_SEC_LL;
 
-	// Work around the VFP not supporting 64-bit integer <--> floating point conversion
-	double temp = (u32)(delta >> 32);
-	temp *= 0x100000000ULL;
-	temp += (u32)delta;
+	//printf("%2d %8d %10lld %10lld\n", m_channel, m_speed, speed, delta);
 
-	delta = (temp * 11025.0) / TICKS_PER_SEC;
-	return delta;
+	return samples;
 }
 
 void MIX_UpdateTime(void)

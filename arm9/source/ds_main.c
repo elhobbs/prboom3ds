@@ -51,9 +51,14 @@ static void sys_init() {
 	//con_init();
 	consoleInit(GFX_BOTTOM, 0);
 
-	Result result = khaxInit();
-	printf("khaxInit returned %08lx\n", result);
-	svcSleepThread(2000000000);
+	//only do this on ninjhax 1
+	if (!hbInit()) {
+
+		hbExit();
+		Result result = khaxInit();
+		printf("khaxInit returned %08lx\n", result);
+		svcSleepThread(2000000000);
+	}
 	
 	gfxSet3D(true);
 

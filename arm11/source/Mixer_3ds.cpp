@@ -47,16 +47,16 @@ byte* MixerHardware3DS::buffer() {
 }
 
 #define TICKS_PER_SEC 268123480.0
+#define TICKS_PER_SEC_LL 268111856LL
 
 int MixerHardware3DS::samplepos() {
-	u64 delta = svcGetSystemTick() - m_start;
-	// Work around the VFP not supporting 64-bit integer <--> floating point conversion
-	double temp = (u32)(delta >> 32);
-	temp *= 0x100000000ULL;
-	temp += (u32)delta;
+	u64 delta = (svcGetSystemTick() - m_start);
+	u64 samples = delta * m_speed / TICKS_PER_SEC_LL;
 
-	delta = (temp * m_speed) / TICKS_PER_SEC;
-	m_soundPos = delta;
+	m_soundPos = samples;
+
+	//printf("%2d %8d %10lld %10lld\n", m_channel, m_speed, speed, delta);
+
 	return m_soundPos;
 }
 
