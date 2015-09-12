@@ -2261,7 +2261,9 @@ setup_menu_t keys_settings3[] =  // Key Binding screen strings
   {"CHAINSAW",S_KEY       ,m_scrn,KB_X,KB_Y+ 8*8,{&key_weapon8}},
   {"SSG"     ,S_KEY       ,m_scrn,KB_X,KB_Y+ 9*8,{&key_weapon9}},
   {"BEST"    ,S_KEY       ,m_scrn,KB_X,KB_Y+10*8,{&key_weapontoggle}},
-  {"FIRE"    ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_fire},&mousebfire,&joybfire},
+  {"NEXT WEAPON"    ,S_KEY       ,m_scrn,KB_X,KB_Y+11*8,{&key_weapon_next}},
+  {"PREV WEAPON"    ,S_KEY       ,m_scrn,KB_X,KB_Y+12*8,{&key_weapon_prev}},
+  {"FIRE"    ,S_KEY       ,m_scrn,KB_X,KB_Y+13*8,{&key_fire},&mousebfire,&joybfire},
 
   {"<- PREV",S_SKIP|S_PREV,m_null,KB_PREV,KB_Y+20*8, {keys_settings2}},
   {"NEXT ->",S_SKIP|S_NEXT,m_null,KB_NEXT,KB_Y+20*8, {keys_settings4}},

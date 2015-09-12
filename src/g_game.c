@@ -203,6 +203,8 @@ int     key_weapon6;
 int     key_weapon7;                                                //    ^
 int     key_weapon8;                                                //    |
 int     key_weapon9;                                                // phares
+int     key_weapon_next;
+int     key_weapon_prev;
 
 int     key_screenshot;             // killough 2/22/98: screenshot key
 int     mousebfire;
@@ -286,6 +288,7 @@ static inline signed short fudgea(signed short b)
   return b;
 }
 
+int weapon_cycle(int next);
 
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
@@ -397,17 +400,25 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     newweapon = P_SwitchWeapon(&players[consoleplayer]);           // phares
   else
     {                                 // phares 02/26/98: Added gamemode checks
-      newweapon =
-        gamekeydown[key_weapon1] ? wp_fist :    // killough 5/2/98: reformatted
-        gamekeydown[key_weapon2] ? wp_pistol :
-        gamekeydown[key_weapon3] ? wp_shotgun :
-        gamekeydown[key_weapon4] ? wp_chaingun :
-        gamekeydown[key_weapon5] ? wp_missile :
-        gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
-        gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
-        gamekeydown[key_weapon8] ? wp_chainsaw :
-        (!demo_compatibility && gamekeydown[key_weapon9] && gamemode == commercial) ? wp_supershotgun :
-        wp_nochange;
+		if (gamekeydown[key_weapon_next]) {
+			newweapon = weapon_cycle(1);
+		}
+		else if (gamekeydown[key_weapon_prev]) {
+			newweapon = weapon_cycle(0);
+		}
+		else {
+			newweapon =
+				gamekeydown[key_weapon1] ? wp_fist :    // killough 5/2/98: reformatted
+				gamekeydown[key_weapon2] ? wp_pistol :
+				gamekeydown[key_weapon3] ? wp_shotgun :
+				gamekeydown[key_weapon4] ? wp_chaingun :
+				gamekeydown[key_weapon5] ? wp_missile :
+				gamekeydown[key_weapon6] && gamemode != shareware ? wp_plasma :
+				gamekeydown[key_weapon7] && gamemode != shareware ? wp_bfg :
+				gamekeydown[key_weapon8] ? wp_chainsaw :
+				(!demo_compatibility && gamekeydown[key_weapon9] && gamemode == commercial) ? wp_supershotgun :
+				wp_nochange;
+		}
 
       // killough 3/22/98: For network and demo consistency with the
       // new weapons preferences, we must do the weapons switches here

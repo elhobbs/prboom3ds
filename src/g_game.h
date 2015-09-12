@@ -141,6 +141,8 @@ extern int  key_weapon6;
 extern int  key_weapon7;
 extern int  key_weapon8;
 extern int  key_weapon9;
+extern int  key_weapon_next;
+extern int  key_weapon_prev;
 extern int  destination_keys[MAXPLAYERS];
 extern int  key_map_right;
 extern int  key_map_left;

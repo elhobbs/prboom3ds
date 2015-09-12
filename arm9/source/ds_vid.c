@@ -30,10 +30,6 @@ int desired_fullscreen;
 
 unsigned char* out_buffer = NULL;
 
-char weapons[9] = { '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-int weapon_index = 0;
-bool weapon_shotgun_cycled = false;
-
 void AM_ZoomOut();
 void AM_ZoomIn();
 
@@ -56,8 +52,8 @@ int keys3ds[32][3] = {
 	{ KEY_Y,		'y',			'y' }, //bit 11
 	{ 0, 0, 0 }, //bit 12
 	{ 0, 0, 0 }, //bit 13
-	{ KEY_ZL,		'<',			0 }, //bit 14
-	{ KEY_ZR,		'>',			0 }, //bit 15
+	{ KEY_ZL,		'[',			0 }, //bit 14
+	{ KEY_ZR,		']',			0 }, //bit 15
 	{ 0, 0, 0 }, //bit 16
 	{ 0, 0, 0 }, //bit 17
 	{ 0, 0, 0 }, //bit 18
@@ -75,6 +71,40 @@ int keys3ds[32][3] = {
 	{ KEY_CPAD_UP,		KEYD_CPAD_UP,		0 }, //bit 30
 	{ KEY_CPAD_DOWN,	KEYD_CPAD_DOWN,		0 }, //bit 31
 };
+
+int weapon_cycle(int next) {
+	bool good = false;
+	int weapon_index = players[displayplayer].readyweapon;
+	int dir = next ? 1 : -1;
+	int count = 0;
+	int max_index = NUMWEAPONS - 2;
+
+	//change to the shotgun fro easier cycling
+	if (weapon_index == wp_supershotgun) {
+		weapon_index = wp_shotgun;
+	}
+
+	//printf("%d ", weapon_index);
+
+	while (!good)
+	{
+		weapon_index += dir;
+
+		if (weapon_index < 0) weapon_index = max_index;
+		if (weapon_index > max_index) weapon_index = 0;
+		if (players[displayplayer].weaponowned[weapon_index] && P_GetAmmoLevel(&players[displayplayer], weapon_index)) good = true;
+		if (count++ > NUMWEAPONS) break;
+		//if (players[displayplayer].weaponowned[weapon_index]) good = true;
+	}
+
+	//change to the super shotgun if owned
+	if (weapon_index == wp_shotgun && players[displayplayer].weaponowned[wp_supershotgun]) {
+		weapon_index = wp_supershotgun;
+	}
+
+	//printf("-> %d %d\n", weapon_index, max_index);
+	return weapon_index;
+}
 
 void DS_Controls(void) {
 	touchPosition touch;
