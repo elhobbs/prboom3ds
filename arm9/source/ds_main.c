@@ -71,6 +71,8 @@ static void sys_init() {
 	switchConsole();
 	gfxFlushBuffers();
 	gfxSwapBuffers();
+
+	osSetSpeedupEnable(true);
 }
 
 void I_Quit() {
@@ -119,7 +121,7 @@ void switchConsole()
 //---------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 	if (argv) {
-		myargc = argc;
+		myargc = 1;
 		myargv = argv;
 	}
 	else {
@@ -130,11 +132,10 @@ int main(int argc, char *argv[]) {
 	//---------------------------------------------------------------------------------
 	sys_init();
 	printf("system initialized\n");
-	printf("%d %s\n",argc,argv ? argv[0] : "{null}");
 
 
 	/* Version info */
-	lprintf(LO_INFO, "PrBoom DS\n");
+	lprintf(LO_INFO, "PrBoom 3DS\n");
 	//PrintVer();
 
 	/* cph - Z_Close must be done after I_Quit, so we register it first. */
