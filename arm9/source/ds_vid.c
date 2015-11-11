@@ -106,6 +106,8 @@ int weapon_cycle(int next) {
 	return weapon_index;
 }
 
+extern boolean setup_select; // changing an item
+
 void DS_Controls(void) {
 	touchPosition touch;
 
@@ -114,6 +116,7 @@ void DS_Controls(void) {
 	u32 held = keysHeld();
 	u32 up = keysUp();
 	int i;
+	boolean altmode = menuactive && !setup_select;
 
 	if (held & KEY_TOUCH) {
 		touchRead(&touch);
@@ -124,14 +127,14 @@ void DS_Controls(void) {
 		if (keys3ds[i][0] & keys) {
 			event_t ev;
 			ev.type = ev_keydown;
-			ev.data1 = keys3ds[i][(menuactive && keys3ds[i][2]) ? 2 : 1];
+			ev.data1 = keys3ds[i][(altmode && keys3ds[i][2]) ? 2 : 1];
 			D_PostEvent(&ev);
 		}
 		//send key up
 		if (keys3ds[i][0] & up) {
 			event_t ev;
 			ev.type = ev_keyup;
-			ev.data1 = keys3ds[i][(menuactive && keys3ds[i][2]) ? 2 : 1];
+			ev.data1 = keys3ds[i][(altmode && keys3ds[i][2]) ? 2 : 1];
 			D_PostEvent(&ev);
 		}
 	}
