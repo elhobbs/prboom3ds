@@ -244,7 +244,7 @@ static void OPL_AdvanceTime(unsigned int nsamples)
 
 }
 
-//#define STEREO 1
+#define STEREO 1
 
 static void FillBuffer(int16_t *buffer, unsigned int nsamples)
 {

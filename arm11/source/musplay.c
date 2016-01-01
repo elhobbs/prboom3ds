@@ -37,7 +37,6 @@ int mixer_pos();
 void mixer_init();
 void mixer_clear();
 void mixer_exit();
-byte* mixer_buffer();
 void OPL_Render_Samples(void *dest, unsigned nsamp);
 
 Handle musRequest, musResponse, musMutex;
@@ -738,8 +737,8 @@ byte* mus_load_music(u8 *data)
 		return 0;
 	}
 
-	GSPGPU_FlushDataCache(NULL, mus, sizeof(*mus));
-	GSPGPU_FlushDataCache(NULL, lump + header->scoreStart, header->scoreLen);
+	GSPGPU_FlushDataCache(mus, sizeof(*mus));
+	GSPGPU_FlushDataCache(lump + header->scoreStart, header->scoreLen);
 
 	return lump + header->scoreStart;
 }
@@ -1011,7 +1010,7 @@ void mus_setup_timer() {
 	adlib_mus = adlib_pos = mixer_pos();
 
 	printf("starting music thread...");
-	ret = svcCreateThread(&adlibHandle, adlibThreadMain, 0x0, (u32*)((char*)adlibStack + sizeof(adlibStack)), 0x18, 0xfffffffe);
+	ret = svcCreateThread(&adlibHandle, adlibThreadMain, 0x0, (u32*)((char*)adlibStack + sizeof(adlibStack)), 0x24, -2);
 	if (ret != 0) {
 		printf(" failed %d\n", ret);
 		gfxFlushBuffers();

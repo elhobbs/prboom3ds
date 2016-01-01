@@ -65,9 +65,10 @@ u32 GetTicks(void)
 
 void Pause(u32 ms)
 {
-	u32 now;
-	now = GetTicks();
-	while (GetTicks()<now + ms);
+	//u32 now;
+	//now = GetTicks();
+	//while (GetTicks()<now + ms);
+	svcSleepThread(ms*1000000LL);
 }
 
 static unsigned int start_displaytime;

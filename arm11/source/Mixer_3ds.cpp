@@ -8,7 +8,7 @@ void MixerHardware3DS::init() {
 	m_bufferSize = 4096;
 
 	m_soundBuffer = (byte *)linearAlloc(m_bufferSize);
-	m_soundBufferPHY = osConvertVirtToPhys((u32)m_soundBuffer);
+	m_soundBufferPHY = osConvertVirtToPhys(m_soundBuffer);
 	m_bufferPos = 0;
 	m_soundPos = 0;
 	m_lastPos = 0;
@@ -31,7 +31,7 @@ void MixerHardware3DS::init() {
 
 void MixerHardware3DS::clear() {
 	memset(m_soundBuffer, 0, m_bufferSize);
-	GSPGPU_FlushDataCache(NULL, m_soundBuffer, m_bufferSize);
+	GSPGPU_FlushDataCache(m_soundBuffer, m_bufferSize);
 }
 
 void MixerHardware3DS::shutdown() {
@@ -49,7 +49,7 @@ byte* MixerHardware3DS::buffer() {
 #define TICKS_PER_SEC 268123480.0
 #define TICKS_PER_SEC_LL 268111856LL
 
-int MixerHardware3DS::samplepos() {
+u64 MixerHardware3DS::samplepos() {
 	u64 delta = (svcGetSystemTick() - m_start);
 	u64 samples = delta * m_speed / TICKS_PER_SEC_LL;
 
@@ -87,10 +87,10 @@ void MixerHardware3DS::update(short *pAudioData, int count)
 		outp[pos] = val>>8;
 		pos = (pos + 1) & mask;
 	}
-	GSPGPU_FlushDataCache(NULL, m_soundBuffer, m_bufferSize);
+	GSPGPU_FlushDataCache(m_soundBuffer, m_bufferSize);
 }
 
-
+#if 0
 MixerHardware3DS g_mixer(32728, 2);
 
 extern "C" void mixer_update(short *pAudioData, int count) {
@@ -113,7 +113,4 @@ extern "C" void mixer_clear() {
 	g_mixer.clear();
 }
 
-extern "C" byte* mixer_buffer() {
-	return g_mixer.buffer();
-}
-
+#endif

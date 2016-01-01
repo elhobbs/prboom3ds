@@ -74,7 +74,7 @@ namespace KHAX
 	public:
 		// Construct using the version information for the current system.
 		MemChunkHax(const VersionData *versionData)
-		:	m_versionData(versionData),
+			: m_versionData(versionData),
 			m_nextStep(1),
 			m_corrupted(0),
 			m_overwriteMemory(nullptr),
@@ -126,7 +126,7 @@ namespace KHAX
 
 		// Helper for dumping memory to SD card.
 		template <std::size_t S>
-		bool DumpMemberToSDCard(const unsigned char (MemChunkHax::*member)[S], const char *filename) const;
+		bool DumpMemberToSDCard(const unsigned char(MemChunkHax::*member)[S], const char *filename) const;
 
 		// Result returned by hacked svcCreateThread upon success.
 		static constexpr const Result STEP6_SUCCESS_RESULT = 0x1337C0DE;
@@ -185,11 +185,11 @@ namespace KHAX
 		u32 m_originalPID;
 
 		// Buffers for dumped data when debugging.
-	#ifdef KHAX_DEBUG_DUMP_DATA
+#ifdef KHAX_DEBUG_DUMP_DATA
 		unsigned char m_savedKProcess[sizeof(KProcess_8_0_0_New)];
 		unsigned char m_savedKThread[sizeof(KThread)];
 		unsigned char m_savedThreadSVC[0x100];
-	#endif
+#endif
 
 		// Pointer to our instance.
 		static MemChunkHax *volatile s_instance;
@@ -236,19 +236,19 @@ const KHAX::VersionData KHAX::VersionData::s_versionTable[] =
 #define KPROC_FUNC(ver) MakeKProcessPointers<KProcess_##ver>
 
 	// Old 3DS, old address layout
-	{ false, SYSTEM_VERSION(2, 34, 0), SYSTEM_VERSION(4, 1, 0), 0xEFF83C9F, 0xEFF827CC, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 35, 6), SYSTEM_VERSION(5, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 36, 0), SYSTEM_VERSION(5, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 37, 0), SYSTEM_VERSION(6, 0, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 38, 0), SYSTEM_VERSION(6, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 39, 4), SYSTEM_VERSION(7, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 40, 0), SYSTEM_VERSION(7, 2, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-	// Old 3DS, new address layout
-	{ false, SYSTEM_VERSION(2, 44, 6), SYSTEM_VERSION(8, 0, 0), 0xDFF8376F, 0xDFF82294, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
-	{ false, SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF8383F, 0xDFF82290, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
-	// New 3DS
-	{ true,  SYSTEM_VERSION(2, 45, 5), SYSTEM_VERSION(8, 1, 0), 0xDFF83757, 0xDFF82264, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) }, // untested
-	{ true,  SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF83837, 0xDFF82260, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) },
+{ false, SYSTEM_VERSION(2, 34, 0), SYSTEM_VERSION(4, 1, 0), 0xEFF83C9F, 0xEFF827CC, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 35, 6), SYSTEM_VERSION(5, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 36, 0), SYSTEM_VERSION(5, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 37, 0), SYSTEM_VERSION(6, 0, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 38, 0), SYSTEM_VERSION(6, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 39, 4), SYSTEM_VERSION(7, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 40, 0), SYSTEM_VERSION(7, 2, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+// Old 3DS, new address layout
+{ false, SYSTEM_VERSION(2, 44, 6), SYSTEM_VERSION(8, 0, 0), 0xDFF8376F, 0xDFF82294, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
+{ false, SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF8383F, 0xDFF82290, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
+// New 3DS
+{ true,  SYSTEM_VERSION(2, 45, 5), SYSTEM_VERSION(8, 1, 0), 0xDFF83757, 0xDFF82264, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) }, // untested
+{ true,  SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF83837, 0xDFF82260, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) },
 
 #undef KPROC_FUNC
 };
@@ -261,11 +261,8 @@ void *KHAX::VersionData::ConvertLinearUserVAToKernelVA(void *address) const
 	static_assert((std::numeric_limits<std::uintptr_t>::max)() == (std::numeric_limits<u32>::max)(),
 		"you're sure that this is a 3DS?");
 
-	// Need the pointer as an integer.
-	u32 addr = reinterpret_cast<u32>(address);
-
 	// Convert the address to a physical address, since that's how we know the mapping.
-	u32 physical = osConvertVirtToPhys(addr);
+	u32 physical = osConvertVirtToPhys(address);
 	if (physical == 0)
 	{
 		return nullptr;
@@ -364,7 +361,7 @@ Result KHAX::MemChunkHax::Step2_AllocateMemory()
 	m_overwriteMemory = reinterpret_cast<OverwriteMemory *>(address);
 	m_overwriteAllocated = (1u << 6) - 1;  // all 6 pages allocated now
 
-	// Why didn't we get a page-aligned address?!
+										   // Why didn't we get a page-aligned address?!
 	if (address & 0xFFF)
 	{
 		// Since we already assigned m_overwriteMemory, it'll get freed by our destructor.
@@ -977,7 +974,7 @@ Result KHAX::IsNew3DS(bool *answer, u32 kernelVersionAlreadyKnown)
 		// Check whether the system is a New 3DS.  If this fails, abort, because being wrong would
 		// crash the system.
 		u8 isNew3DS = 0;
-		if (Result error = APT_CheckNew3DS(nullptr, &isNew3DS))
+		if (Result error = APT_CheckNew3DS(&isNew3DS))
 		{
 			*answer = false;
 			return error;
@@ -999,14 +996,14 @@ Result KHAX::GSPwn(void *dest, const void *src, std::size_t size, bool wait)
 {
 	// Attempt a flush of the source, but ignore the result, since we may have just been asked to
 	// read unmapped memory or something similar.
-	GSPGPU_FlushDataCache(nullptr, static_cast<u8 *>(const_cast<void *>(src)), size);
+	GSPGPU_FlushDataCache(static_cast<u8 *>(const_cast<void *>(src)), size);
 
 	// Invalidate the destination's cache, since we're about to overwrite it.  Likewise, ignore
 	// errors, since it may be the destination that is an unmapped address.
-	GSPGPU_InvalidateDataCache(nullptr, static_cast<u8 *>(dest), size);
+	GSPGPU_InvalidateDataCache(static_cast<u8 *>(dest), size);
 
 	// Copy that floppy.
-	if (Result result = GX_SetTextureCopy(nullptr, static_cast<u32 *>(const_cast<void *>(src)), 0,
+	if (Result result = GX_TextureCopy(static_cast<u32 *>(const_cast<void *>(src)), 0,
 		static_cast<u32 *>(dest), 0, size, 8))
 	{
 		KHAX_printf("gspwn:copy fail:%08lx\n", result);

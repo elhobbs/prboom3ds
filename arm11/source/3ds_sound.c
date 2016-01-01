@@ -204,29 +204,7 @@ void S_Init(int sfxVolume, int musicVolume) {
 	//return;
 
 	if (csndInit() == 0) {
-#if 1
-		printf("csndInit ok!\ncsndChannels: %08x\n", csndChannels);
-#else
-		Result ret = 0;
-		Handle csndHandle;
-		u32 __channels=0;
-		printf("csndInit ok!\ncsndChannels: %08x\n", csndChannels);
-		ret = srvGetServiceHandle(&csndHandle, "csnd:SND");
-		if (ret != 0) {
-			printf("handle failed\n");
-		}
-		ret = CSND_ReleaseSoundChannels(csndHandle);
-		if (ret != 0) {
-			printf("CSND_ReleaseSoundChannels failed\n");
-		}
-		ret = CSND_AcquireSoundChannels(csndHandle, &__channels);
-		if (ret != 0) {
-			printf("CSND_AcquireSoundChannels failed\n");
-		}
-		printf("channels: %08x\n", __channels);
-		gfxFlushBuffers();
-		while (1);
-#endif
+		printf("csndInit ok!\n");
 		audio_initialized = 1;
 	}
 	else {
@@ -251,7 +229,6 @@ void S_Exit() {
 	mus_exit();
 	//flush csnd command buffers
 	csndExecCmds(true);
-	ret = csndExit();
-	printf("csndExit %d\n", ret);
+	csndExit();
 	//svcSleepThread(5000000000LL);
 }

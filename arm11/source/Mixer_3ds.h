@@ -15,7 +15,7 @@ public:
 	void flush();
 	void update(int *pAudioData, int count);
 	void update(short *pAudioData, int count);
-	int samplepos();
+	u64 samplepos();
 	void clear();
 	byte *buffer();
 private:

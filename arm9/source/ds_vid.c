@@ -755,6 +755,7 @@ void I_FinishUpdate(void)
 #endif
 
 	gfxFlushBuffers();
+	//gspWaitForVBlank();
 	gfxSwapBuffers();
 #if 0
 	{

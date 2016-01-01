@@ -67,8 +67,10 @@
     <ClCompile Include="arm11\source\console.c" />
     <ClCompile Include="arm11\source\dbopl.c" />
     <ClCompile Include="arm11\source\file.c" />
+    <ClCompile Include="arm11\source\hw_mix.c" />
     <ClCompile Include="arm11\source\keyboard.c" />
     <ClCompile Include="arm11\source\Mixer_3ds.cpp" />
+    <ClCompile Include="arm11\source\Mixer_dsp.cpp" />
     <ClCompile Include="arm11\source\musplay.c" />
     <ClCompile Include="arm11\source\opl.c" />
     <ClCompile Include="arm11\source\opl_queue.c" />
@@ -149,6 +151,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arm11\include\font8x8_basic.h" />
+    <ClInclude Include="arm11\include\Mixer_dsp.h" />
     <ClInclude Include="arm11\source\dbopl.h" />
     <ClInclude Include="arm11\source\keyboard.h" />
     <ClInclude Include="arm11\source\MixerHardware.h" />

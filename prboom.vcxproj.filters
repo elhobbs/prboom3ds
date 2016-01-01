@@ -288,6 +288,12 @@
     <ClCompile Include="arm11\source\keyboard.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
+    <ClCompile Include="arm11\source\Mixer_dsp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="arm11\source\hw_mix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\am_map.h">
@@ -550,6 +556,9 @@
     </ClInclude>
     <ClInclude Include="arm11\source\keyboard.h">
       <Filter>Arm11\source</Filter>
+    </ClInclude>
+    <ClInclude Include="arm11\include\Mixer_dsp.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

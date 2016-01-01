@@ -228,6 +228,7 @@ void D_Display (void)
   renderframe = 0;
 
 drawagain:
+  MIX_Update_();
 
 
   // save the current screen if about to wipe
@@ -321,8 +322,12 @@ drawagain:
 #ifdef HAVE_NET
   NetUpdate();         // send out any new accumulation
 #else
-  D_BuildNewTiccmds();
+  if (renderframe == 0) {
+	  D_BuildNewTiccmds();
+  }
 #endif
+
+  MIX_Update_();
 
   // normal update
   if (!wipe || (V_GetMode() == VID_MODEGL)) {
@@ -814,13 +819,13 @@ static void ds_game_draw() {
 	find_wads();
 	gfxFlushBuffers();
 	gfxSwapBuffers();
-	gspWaitForEvent(GSPEVENT_VBlank0, false);
+	gspWaitForEvent(GSPGPU_EVENT_VBlank0, false);
 
 	// Clear the screen
 	iprintf("\x1b[2J");
 	gfxFlushBuffers();
 	gfxSwapBuffers();
-	gspWaitForEvent(GSPEVENT_VBlank0, false);
+	gspWaitForEvent(GSPGPU_EVENT_VBlank0, false);
 
 	iprintf("Choose a game\nA to select");
 	// Move to 2nd row
@@ -833,7 +838,7 @@ static void ds_game_draw() {
 	}
 	gfxFlushBuffers();
 	gfxSwapBuffers();
-	gspWaitForEvent(GSPEVENT_VBlank0, false);
+	gspWaitForEvent(GSPGPU_EVENT_VBlank0, false);
 }
 
 
@@ -857,7 +862,7 @@ static char* ds_game_choose() {
 		do {
 			scanKeys();
 			pressed = keysDown();
-			gspWaitForEvent(GSPEVENT_VBlank0, false);
+			gspWaitForEvent(GSPGPU_EVENT_VBlank0, false);
 		} while (!pressed);
 
 		if (pressed & KEY_UP)

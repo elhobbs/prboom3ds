@@ -9,19 +9,18 @@
 #include "w_wad.h"
 #include <3ds.h>
 
-#define USE_CSND
-
-#ifndef USE_CSND
 void* ndspMix_init(int channel, int speed, int channels);
-void ndsp_update(void *pmix, short *pAudioData, int count);
+void ndspMix_update32(void *pmix, int *pAudioData, int count);
+void ndspMix_update16(void *pmix, short *pAudioData, int count);
 int ndspMix_pos(void *pmix);
 void ndspMix_exit(void *pmix);
 void ndspMix_clear(void *pmix);
+void ndspMix_flush(void *pmix);
+
 void *_ndspMixer = 0;
 
 u64 g_sound_time;
 u64 g_paint_time;
-#endif
 
 
 extern int snd_card;
@@ -46,7 +45,7 @@ typedef struct
 	int is_pickup;       // killough 4/25/98: whether sound is a player's weapon
 	long pitch;
 	//int priority;
-	int end;
+	u64 end;
 	int pos;
 	int left, right;
 } channel_t;
@@ -55,17 +54,7 @@ static channel_t channel[MAX_CHANNELS];
 
 int			snd_Channels = MAX_CHANNELS;
 
-int			snd_Samples;
-int			snd_Speed;
-
-int			soundtime;		// sample PAIRS
-int   		paintedtime; 	// sample PAIRS
-
-#define SND_SAMPLES (8192)
-byte *c_snd_Buffer_left;// = c_snd_Buffer;
-byte *c_snd_Buffer_right;// = c_snd_Buffer + SND_SAMPLES;
-u32 c_snd_LPHY;
-u32 c_snd_RPHY;
+int			snd_Speed = 11025;
 
 #define	PAINTBUFFER_SIZE	512
 typedef struct
@@ -82,22 +71,6 @@ int audio_initialized = 0;
 static u64 sound_start;
 #define TICKS_PER_SEC 268123480.0
 
-u64 sound_time()
-{
-	u64 tm = osGetTime() - sound_start;
-	return tm;
-}
-
-void mix_start() {
-	memset(c_snd_Buffer_left, 0, SND_SAMPLES);
-	memset(c_snd_Buffer_right, 0, SND_SAMPLES);
-	//c_snd_Buffer_left[4] = c_snd_Buffer_left[5] = 0x7f;	// force a pop for debugging
-	//c_snd_Buffer_right[4] = c_snd_Buffer_right[5] = 0x7f;	// force a pop for debugging
-	GSPGPU_FlushDataCache(c_snd_Buffer_left, SND_SAMPLES);
-	GSPGPU_FlushDataCache(c_snd_Buffer_right, SND_SAMPLES);
-}
-
-
 void MIX_InitScaletable(void)
 {
 	int		i, j;
@@ -107,116 +80,25 @@ void MIX_InitScaletable(void)
 			snd_scaletable[i][j] = ((signed char)j) * i * 8;
 }
 
-void mix_stop() {
-#if 0
-	if (sound_left > 0) {
-		soundKill(sound_left);
-		sound_left = -1;
-	}
-	if (sound_right > 0) {
-		soundKill(sound_right);
-		sound_right = -1;
-	}
-#endif
-}
-
 void MIX_init() {
 	u8 playing = 0;
 
 	MIX_InitScaletable();
 
-#ifdef USE_CSND
-	
-	snd_Samples = SND_SAMPLES;
-	snd_Speed = 11025;
-	
-	c_snd_Buffer_left = linearAlloc(SND_SAMPLES * 2);
-	c_snd_Buffer_right = c_snd_Buffer_left + SND_SAMPLES;
-	c_snd_LPHY = osConvertVirtToPhys(c_snd_Buffer_left);
-	c_snd_RPHY = osConvertVirtToPhys(c_snd_Buffer_right);
-
-	mix_start();
-
-	csndPlaySound(0x8, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, 1.0f, -1.0f, (u32*)c_snd_Buffer_left, (u32*)c_snd_Buffer_left, SND_SAMPLES);
-	csndPlaySound(0x9, SOUND_REPEAT | SOUND_FORMAT_8BIT, 11025, 1.0f, +1.0f, (u32*)c_snd_Buffer_right, (u32*)c_snd_Buffer_right, SND_SAMPLES);
-	//try to start stalled channels
-	csndIsPlaying(0x8, &playing);
-	if (playing == 0) {
-		CSND_SetPlayState(0x8, 1);
-	}
-	//try to start stalled channels
-	csndIsPlaying(0x9, &playing);
-	if (playing == 0) {
-		CSND_SetPlayState(0x9, 1);
-	}
-	//flush csnd command buffers
-	csndExecCmds(true);
-
-	sound_start = svcGetSystemTick();
-#else
-	_ndspMixer = ndspMix_init(1, 32768, 2);
-	g_sound_time = g_paint_time = ndspMix_pos();
-#endif
+	_ndspMixer = ndspMix_init(1, 11025, 2);
+	g_sound_time = g_paint_time = ndspMix_pos(_ndspMixer);
 }
 
 void MIX_exit() {
-#ifdef USE_CSND
-	CSND_SetPlayState(0x8, 0);
-	CSND_SetPlayState(0x9, 0);
-#else
-	ndspMixer_exit(_ndspMixer);
-#endif
+	ndspMix_exit(_ndspMixer);
+	_ndspMixer = 0;
 }
 
-void MIX_TransferPaintBuffer(int endtime)
+void MIX_TransferPaintBuffer(u64 endtime)
 {
-#ifndef USE_CSND
-	int count = endtime - paintedtime;
+	int count = endtime - g_paint_time;
 
-	m_hw->update((int *)paintbuffer, count);
-
-#else
-	int 	out_idx;
-	int 	count, count1, count2, pos;
-	int 	out_mask;
-	int 	*p;
-	int 	step;
-	int		val;
-	int		snd_vol;
-	byte *outl;
-	byte *outr;
-
-	p = (int *)paintbuffer;
-	count = (endtime - paintedtime);// * shm->channels;
-	out_mask = snd_Samples - 1;
-	out_idx = paintedtime & out_mask;
-	step = 3 - 1;//shm->channels;
-	snd_vol = 255;//volume.value*256;
-
-
-	outl = c_snd_Buffer_left;
-	outr = c_snd_Buffer_right;
-	while (count--)
-	{
-		val = *p++;// (*p * snd_vol) >> 8;
-		//p += 1;//step;
-		if (val > 0x7fff)
-			val = 0x7fff;
-		else if (val < (short)0x8000)
-			val = (short)0x8000;
-		outl[out_idx] = (val >> 8);// + 128;
-
-		val = *p++;// (*p * snd_vol) >> 8;
-		//p += 1;//step;
-		if (val > 0x7fff)
-			val = 0x7fff;
-		else if (val < (short)0x8000)
-			val = (short)0x8000;
-		outr[out_idx] = (val >> 8);// + 128;
-
-		out_idx = (out_idx + 1) & out_mask;
-	}
-#endif
+	ndspMix_update32(_ndspMixer, (int *)paintbuffer, count);
 }
 
 void MIX_PaintChannelFrom8(channel_t *ch, byte *sfx, int count)
@@ -250,23 +132,23 @@ void MIX_PaintChannelFrom8(channel_t *ch, byte *sfx, int count)
 	ch->pos += count;
 }
 
-void MIX_PaintChannels(int endtime)
+void MIX_PaintChannels(u64 endtime)
 {
 	int 	i;
-	int 	end;
+	u64 	end, ltime;
 	channel_t *ch;
 	//channel_t	*sc;
-	int		ltime, count, mixed = 0;
+	int		count, mixed = 0;
 
-	while (paintedtime < endtime)
+	while (g_paint_time < endtime)
 	{
 		// if paintbuffer is smaller than DMA buffer
 		end = endtime;
-		if (endtime - paintedtime > PAINTBUFFER_SIZE)
-			end = paintedtime + PAINTBUFFER_SIZE;
+		if (endtime - g_paint_time > PAINTBUFFER_SIZE)
+			end = g_paint_time + PAINTBUFFER_SIZE;
 
 		// clear the paint buffer
-		memset(paintbuffer, 0, (end - paintedtime) * sizeof(portable_samplepair_t));
+		memset(paintbuffer, 0, (end - g_paint_time) * sizeof(portable_samplepair_t));
 
 		// paint in the channels.
 		ch = channel;
@@ -276,7 +158,7 @@ void MIX_PaintChannels(int endtime)
 				continue;
 			}
 			if (ch->left <= 0 && ch->right <= 0) {
-				if (paintedtime >= ch->end)
+				if (g_paint_time >= ch->end)
 				{
 					if (ch->sfxinfo->usefulness > 0)
 					{
@@ -290,7 +172,7 @@ void MIX_PaintChannels(int endtime)
 				continue;
 			}
 
-			ltime = paintedtime;
+			ltime = g_paint_time;
 			//printf("mixing %d %d %8s\n", ltime, ch->end, ch->sfxinfo->name);
 			//printf("mixing: %8s %d %d\n", ch->sfxinfo->name, ch->left, ch->right);
 
@@ -327,15 +209,14 @@ void MIX_PaintChannels(int endtime)
 		//if (mixed) {
 		//	printf("sound: %d %d %d\n", mixed, paintedtime, end);
 		//}
-		paintedtime = end;
+		g_paint_time = end;
 	}
 }
 
 #define TICKS_PER_SEC_LL 268111856LL
 
-int MIX_SamplePos() {
-	u64 delta = (svcGetSystemTick() - sound_start);
-	u64 samples = delta * 11025 / TICKS_PER_SEC_LL;
+u64 MIX_SamplePos() {
+	u64 samples = ndspMix_pos(_ndspMixer);
 
 	//printf("%2d %8d %10lld %10lld\n", m_channel, m_speed, speed, delta);
 
@@ -344,17 +225,13 @@ int MIX_SamplePos() {
 
 void MIX_UpdateTime(void)
 {
-	soundtime = MIX_SamplePos();
+	g_sound_time = MIX_SamplePos();
 }
 
 void MIX_Update_(void)
 {
-	unsigned        endtime;
-	int				samps;
-	int diff;
-
-	//if (!snd_card || nosfxparm)
-	//	return;
+	u64		endtime;
+	static u64 last = 0;
 
 	if (!audio_initialized) {
 		return;
@@ -364,29 +241,14 @@ void MIX_Update_(void)
 	// Updates DMA time
 	MIX_UpdateTime();
 
-	//diff = paintedtime - soundtime;
-	//iprintf("%d %d %d\n", paintedtime, soundtime, diff);
-	// check to make sure that we haven't overshot
-	//if (diff < 0)
-	//{
-		//iprintf("S_Update_ : overflow\n    %d %d\n", paintedtime, soundtime);
-	//	paintedtime = soundtime;
-	//}
-
 	// mix ahead of current position
-	endtime = soundtime + snd_Speed / 10;//_snd_mixahead.value * shm->speed;
-	samps = snd_Samples;
-	if (endtime - paintedtime > snd_Samples) {
-		printf("%8d %8d %8d\n", soundtime, paintedtime, endtime);
-		paintedtime = soundtime;
-	}
-	//iprintf("%d %d\n", diff, endtime - paintedtime);
+	endtime = g_sound_time + snd_Speed * 0.1f;//_snd_mixahead.value * shm->speed;
 
-	//printf("mixing %d %d %d\n", soundtime, paintedtime, endtime);
+	//printf("mx: %10lld %10lld %10lld\n", g_sound_time, g_paint_time, g_sound_time - last);
+	last = g_sound_time;
+	//give other threads a chance to run - prevents choppy sounds... maybe
+	svcSleepThread(500000);
 	MIX_PaintChannels(endtime);
-	//DC_FlushRange(c_snd_Buffer, SND_SAMPLES * 2);
-	GSPGPU_FlushDataCache(c_snd_Buffer_left, SND_SAMPLES);
-	GSPGPU_FlushDataCache(c_snd_Buffer_right, SND_SAMPLES);
 }
 
 extern int snd_SfxVolume;
@@ -668,7 +530,7 @@ int I_StartSound(sfxinfo_t *sfx, int cnum, int vol, int sep, int pitch, int prio
 	ch->pitch = pitch;
 	ch->left = ((255 - sep) * vol) / 15;
 	ch->right = ((sep)* vol) / 15;
-	ch->end = paintedtime + len;
+	ch->end = g_paint_time + len;
 	ch->pos = 0;
 	//printf("%8s %d %d - %d %d\n",sfx->name, sep, vol, ch->left, ch->right);
 	
@@ -805,6 +667,7 @@ void S_Stop(void)
 
 	//we will start the sound loop again but it is blank
 	//so it should not make any noise while the level loads
-	mix_start();
+	ndspMix_clear(_ndspMixer);
+	g_sound_time = g_paint_time = ndspMix_pos(_ndspMixer);
 }
 #endif
