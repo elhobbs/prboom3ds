@@ -155,8 +155,13 @@ $(OUTPUT).cia	:	$(OUTPUT).elf
 	@echo $(notdir $(OUTPUT))
 	@cp $(OUTPUT).elf $(TARGET)_stripped.elf
 	arm-none-eabi-strip $(TARGET)_stripped.elf
+ifeq ($(shell uname),Linux)
+	makerom -f cci -rsf $(TOPDIR)/resources/gw_workaround.rsf -target d -exefslogo -elf $(TARGET)_stripped.elf -icon $(TOPDIR)/resources/icon.bin -banner $(TOPDIR)/resources/banner.bin -o $(TOPDIR)/$(notdir $(OUTPUT)).3ds
+	makerom -f cia -o $(OUTPUT).cia -elf $(TARGET)_stripped.elf -rsf $(TOPDIR)/resources/build_cia.rsf -icon $(TOPDIR)/resources/icon.bin -banner $(TOPDIR)/resources/banner.bin -exefslogo -target t
+else
 	$(TOPDIR)\resources\makerom.exe -f cci -rsf $(TOPDIR)\resources\gw_workaround.rsf -target d -exefslogo -elf $(TARGET)_stripped.elf -icon $(TOPDIR)\resources\icon.bin -banner $(TOPDIR)\resources\banner.bin -o $(TOPDIR)\$(notdir $(OUTPUT)).3ds
 	$(TOPDIR)\resources\makerom.exe -f cia -o $(OUTPUT).cia -elf $(TARGET)_stripped.elf -rsf $(TOPDIR)\resources\build_cia.rsf -icon $(TOPDIR)\resources\icon.bin -banner $(TOPDIR)\resources\banner.bin -exefslogo -target t
+endif
 #	@echo built ... $(notdir $@)
 
 #---------------------------------------------------------------------------------
