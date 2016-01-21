@@ -5,10 +5,6 @@ BasicInfo:
   ContentType             : Application # Application / SystemUpdate / Manual / Child / Trial
   Logo                    : Nintendo # Nintendo / Licensed / Distributed / iQue / iQueForSystem
 
-Rom:
-  # Specifies the root path of the file system to include in the ROM.
-  #HostRoot                : "romfs"
-
 
 TitleInfo:
   UniqueId                : 0xf0021 # This was/is the first real homebrew app. I hope this TID range is not used by any retail game/app.
@@ -25,21 +21,6 @@ Option:
   MediaFootPadding        : false # If true CCI files are created with padding
   EnableCrypt             : true # Enables encryption for NCCH and CIA
   EnableCompress          : true # Compresses exefs code
-
-ExeFs: # these are the program segments from the ELF, check your elf for the appropriate segment names
-  ReadOnly: 
-   - .rodata
-   - RO
-  ReadWrite: 
-   - .data
-   - RO
-  Text: 
-   - .init
-   - .text
-   - STUP_ENTRY
-   
-PlainRegion: # only used with SDK ELFs 
- - .module_id
   
 AccessControlInfo:
   #UseExtSaveData : true
