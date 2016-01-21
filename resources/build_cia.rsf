@@ -176,6 +176,7 @@ AccessControlInfo:
    - ssl:C
    - y2r:u
    - ldr:ro
+   - ir:rst
    - ir:USER
    - ir:u
    - csnd:SND
