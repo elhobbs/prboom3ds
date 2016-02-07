@@ -7,7 +7,7 @@ static int audio_initialized = 0;
 
 extern "C" void Pause(u32 ms);
 
-void MixerHardwareDSP::init() {
+int MixerHardwareDSP::init() {
 	m_bufferSize = (1<<15)*m_num_channels;
 
 	if (audio_initialized == 0) {
@@ -20,7 +20,7 @@ void MixerHardwareDSP::init() {
 		}
 		else {
 			printf("Sound init failed!\n");
-			return;
+			return -1;
 		}
 	}
 	else {
@@ -38,6 +38,8 @@ void MixerHardwareDSP::init() {
 
 	//printf("MixerHardwareDSP::init on %d %d %08x\naudio_initialized == %d\n", m_channel, m_num_channels, m_soundBuffer, audio_initialized);
 	//svcSleepThread(5000000000);
+
+	return 0;
 }
 
 void MixerHardwareDSP::start() {
@@ -324,8 +326,8 @@ extern "C" int mixer_pos() {
 	return g_mixer.samplepos();
 }
 
-extern "C" void mixer_init() {
-	g_mixer.init();
+extern "C" int  mixer_init() {
+	return g_mixer.init();
 }
 
 extern "C" void mixer_exit() {

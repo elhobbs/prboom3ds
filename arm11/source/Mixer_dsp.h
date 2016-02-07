@@ -10,7 +10,7 @@ public:
 	MixerHardwareDSP(int channel, int speed, int channels);
 	~MixerHardwareDSP();
 
-	void init();
+	int init();
 	void shutdown();
 	void flush();
 	void start();

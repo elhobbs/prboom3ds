@@ -1,5 +1,4 @@
 #if 1
-#include "ds_mix.h"
 #include "doomstat.h"
 #include "sounds.h"
 #include "s_sound.h"
@@ -82,7 +81,12 @@ void MIX_init() {
 
 	MIX_InitScaletable();
 
-	ndspInit();
+	if (ndspInit()) {
+		audio_initialized = 0;
+		nosfxparm = 1;
+		printf("MIX_init failed - no sfx\n");
+		return;
+	}
 	sound_start = svcGetSystemTick();
 	sound_pos = soundpos();
 	for (i = 0; i < snd_Channels; i++) {
@@ -244,6 +248,9 @@ void MIX_UpdateSounds(mobj_t *listener)
 	int absx;
 	int absy;
 
+	if (!audio_initialized) {
+		return;
+	}
 	//listener = players[consoleplayer].mo;
 	if (snd_SfxVolume == 0)
 	{
@@ -463,6 +470,9 @@ void S_StartSoundAtVolume(void *origin_p, int sfx_id, int volume)
 	sfxinfo_t *sfx;
 	mobj_t *origin = (mobj_t *)origin_p;
 
+	if (!audio_initialized) {
+		return;
+	}
 	//jff 1/22/98 return if sound is not enabled
 	if (!snd_card || nosfxparm)
 		return;
@@ -562,6 +572,10 @@ void S_StartSound(void *origin, int sound_id) {
 void S_Stop(void)
 {
 	int cnum;
+
+	if (!audio_initialized) {
+		return;
+	}
 
 	if (snd_card && !nosfxparm) {
 		for (cnum = 0; cnum < snd_Channels; cnum++) {

@@ -34,7 +34,7 @@
 
 void mixer_update(short *pAudioData, int count);
 int mixer_pos();
-void mixer_init();
+int mixer_init();
 void mixer_clear();
 void mixer_exit();
 void OPL_Render_Samples(void *dest, unsigned nsamp);
@@ -957,7 +957,7 @@ void mus_frame() {
 	}
 	else {
 		//we have to sleep a little or things can hang
-		svcSleepThread(100);
+		svcSleepThread(500000);
 	}
 }
 
@@ -999,14 +999,18 @@ static void adlibThreadMain(void* arg) {
 	svcExitThread();
 }
 
-void mus_setup_timer() {
+int mus_setup_timer() {
 	Result ret = 0;
+
 	//timerStart(2, ClockDivider_1024, TIMER_FREQ_1024(140), mus_play_timer);
 	svcCreateEvent(&musRequest, 0);
 	svcCreateEvent(&musResponse, 0);
 	svcCreateMutex(&musMutex, false);
 
-	mixer_init();
+	if (mixer_init()) {
+		printf("init failed - no music\n");
+		return -1;
+	}
 	adlib_mus = adlib_pos = mixer_pos();
 
 	printf("starting music thread...");
@@ -1023,6 +1027,7 @@ void mus_setup_timer() {
 	svcClearEvent(musResponse);
 	printf(" done\n");
 	gfxFlushBuffers();
+	return 0;
 	//svcSleepThread(3000000000LL);
 }
 
@@ -1048,8 +1053,12 @@ void mus_init() {
 	mus->channelMask = -1U;
 	mus->percussMask = 1 << PERCUSSION;
 
-	mus_setup_timer();
-	mus_initialized = 1;
+	if (mus_setup_timer()) {
+		mus_initialized = 0;
+	}
+	else {
+		mus_initialized = 1;
+	}
 }
 
 void mus_exit() {
