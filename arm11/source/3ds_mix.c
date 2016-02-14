@@ -76,7 +76,7 @@ typedef struct
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 
 static int snd_scaletable[32][256];
-int audio_initialized = 0;
+extern int audio_initialized;
 
 
 static u64 sound_start;

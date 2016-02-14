@@ -1,4 +1,4 @@
-#if 1
+#if 0
 #include "doomstat.h"
 #include "sounds.h"
 #include "s_sound.h"
@@ -52,7 +52,7 @@ typedef struct
 portable_samplepair_t paintbuffer[PAINTBUFFER_SIZE];
 
 static int snd_scaletable[32][256];
-int audio_initialized = 0;
+extern int audio_initialized;
 
 void MIX_InitScaletable(void)
 {
@@ -116,7 +116,7 @@ void I_StopSound(channel_t *c) {
 		}
 		i++;
 		svcSleepThread(500000);
-		//printf("-----: %2d %8s %d %08x %d\n", c-channel, c->sfxinfo->name, (int)(c->wavebuf.status), c->wavebuf.data_vaddr, i);
+		printf("-----: %2d %8s %lld %lld\n", c-channel, c->sfxinfo->name, c->end, soundpos());
 	}
 
 	if (c->wavebuf.data_vaddr) {
@@ -436,7 +436,7 @@ int I_StartSound(sfxinfo_t *sfx, int cnum, int vol, int sep, int pitch, int prio
 	ch->left = ((256 - sep) * vol) / 15;
 	ch->right = ((sep)* vol) / 15;
 	ch->pos = 0;
-	//printf("start: %2d %8s %d %d\n",cnum, sfx->name,ch->left, ch->right);
+	printf("start: %2d %8s %d %d\n",cnum, sfx->name,ch->left, ch->right);
 
 	ldata = (byte *)linearAlloc(len);
 	

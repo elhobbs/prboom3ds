@@ -917,7 +917,7 @@ void P_RemoveMobj (mobj_t* mobj)
     }
 
   // stop any playing sound
-
+  //printf("stop any playing sound\n");
   S_StopSound (mobj);
 
   // killough 11/98:

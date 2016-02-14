@@ -44,6 +44,8 @@ void drawFrame()
 	gfxSwapBuffers();
 }
 
+int audio_initialized = 0;
+
 static void sys_init() {
 	Result ret;
 
@@ -71,6 +73,14 @@ static void sys_init() {
 	switchConsole();
 	gfxFlushBuffers();
 	gfxSwapBuffers();
+	if (csndInit() == 0) {
+		printf("csndInit ok!\n");
+		audio_initialized = 1;
+	}
+	else {
+		printf("csndInit failed!\n");
+	}
+	//svcSleepThread(5000000000);
 
 	osSetSpeedupEnable(true);
 }
@@ -79,9 +89,13 @@ void I_Quit() {
 	S_Exit();
 	M_SaveDefaults();
 	W_Exit();
+	if (audio_initialized) {
+		csndExit();
+		printf("csndExit ok!\n");
+	}
 	khaxExit();
 	gfxExit();
-	svcSleepThread(5000000000LL);
+	//svcSleepThread(5000000000LL);
 }
 
 // Jefklak 19/11/06 - Switches lower DS screen back to console or vice versa.

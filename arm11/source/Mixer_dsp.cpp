@@ -1,9 +1,10 @@
+#if 0
 #include "Mixer_dsp.h"
 #include <3ds.h>
 #include <stdio.h>
 #include <string.h>
 
-static int audio_initialized = 0;
+extern int audio_initialized;
 
 extern "C" void Pause(u32 ms);
 
@@ -315,7 +316,7 @@ extern "C" void ndspMix_flush(void *pmix) {
 	mix->flush();
 }
 
-#if 1
+#if 0
 MixerHardwareDSP g_mixer(16, 32728, 2);
 
 extern "C" void mixer_update(short *pAudioData, int count) {
@@ -338,4 +339,5 @@ extern "C" void mixer_clear() {
 	g_mixer.clear();
 }
 
+#endif
 #endif

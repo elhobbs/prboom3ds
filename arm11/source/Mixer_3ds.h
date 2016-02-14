@@ -10,7 +10,7 @@ public:
 	MixerHardware3DS(int speed, int channels);
 	~MixerHardware3DS();
 
-	void init();
+	int init();
 	void shutdown();
 	void flush();
 	void update(int *pAudioData, int count);

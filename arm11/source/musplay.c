@@ -1030,8 +1030,12 @@ int mus_setup_timer() {
 	return 0;
 	//svcSleepThread(3000000000LL);
 }
+extern int audio_initialized;
 
 void mus_init() {
+	if (!audio_initialized) {
+		return;
+	}
 
 	if (!OPL_Init(32728))
 	{

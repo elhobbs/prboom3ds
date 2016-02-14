@@ -200,15 +200,8 @@ extern u32 csndChannels;
 void S_Init(int sfxVolume, int musicVolume) {
 	nosfxparm = 0;
 	nomusicparm = 0;
-	audio_initialized = 0;
-	//return;
 
-	if (csndInit() == 0) {
-		printf("csndInit ok!\n");
-		audio_initialized = 1;
-	}
-	else {
-		printf("csndInit failed!\n");
+	if (!audio_initialized) {
 		nosfxparm = 1;
 		nomusicparm = 1;
 		return;
@@ -229,6 +222,5 @@ void S_Exit() {
 	mus_exit();
 	//flush csnd command buffers
 	csndExecCmds(true);
-	csndExit();
 	//svcSleepThread(5000000000LL);
 }

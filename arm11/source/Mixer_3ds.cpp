@@ -3,9 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 
-void MixerHardware3DS::init() {
+#define MIXER_CHANNEL_NUM 31
+
+int MixerHardware3DS::init() {
 	Result ret = 0;
-	m_bufferSize = 4096;
+	m_bufferSize = (1L<<16);
 
 	m_soundBuffer = (byte *)linearAlloc(m_bufferSize);
 	m_soundBufferPHY = osConvertVirtToPhys(m_soundBuffer);
@@ -14,19 +16,21 @@ void MixerHardware3DS::init() {
 	m_lastPos = 0;
 	clear();
 
-	ret = csndPlaySound(0x10, SOUND_REPEAT | SOUND_FORMAT_8BIT, m_speed, 1.0f, 0.0f, (u32*)m_soundBuffer, (u32*)m_soundBuffer, m_bufferSize);
+	ret = csndPlaySound(MIXER_CHANNEL_NUM, SOUND_REPEAT | SOUND_FORMAT_8BIT, m_speed, 1.0f, 0.0f, (u32*)m_soundBuffer, (u32*)m_soundBuffer, m_bufferSize);
 	if (ret != 0) {
 		printf("mus init failed\n");
 	}
 	//try to start stalled channels
 	u8 playing = 0;
-	csndIsPlaying(0x10, &playing);
+	csndIsPlaying(MIXER_CHANNEL_NUM, &playing);
 	if (playing == 0) {
-		CSND_SetPlayState(0x10, 1);
+		CSND_SetPlayState(MIXER_CHANNEL_NUM, 1);
 	}
 	//flush csnd command buffers
 	csndExecCmds(true);
 	m_start = svcGetSystemTick();
+
+	return 0;
 }
 
 void MixerHardware3DS::clear() {
@@ -36,7 +40,8 @@ void MixerHardware3DS::clear() {
 
 void MixerHardware3DS::shutdown() {
 	flush();
-	CSND_SetPlayState(0x10, 0);
+	CSND_SetPlayState(MIXER_CHANNEL_NUM, 0);
+	csndExecCmds(true);
 }
 
 void MixerHardware3DS::flush() {
@@ -90,8 +95,8 @@ void MixerHardware3DS::update(short *pAudioData, int count)
 	GSPGPU_FlushDataCache(m_soundBuffer, m_bufferSize);
 }
 
-#if 0
-MixerHardware3DS g_mixer(32728, 2);
+#if 1
+MixerHardware3DS g_mixer(32728, 1);
 
 extern "C" void mixer_update(short *pAudioData, int count) {
 	g_mixer.update(pAudioData, count);
@@ -101,8 +106,8 @@ extern "C" int mixer_pos() {
 	return g_mixer.samplepos();
 }
 
-extern "C" void mixer_init() {
-	g_mixer.init();
+extern "C" int mixer_init() {
+	return g_mixer.init();
 }
 
 extern "C" void mixer_exit() {
