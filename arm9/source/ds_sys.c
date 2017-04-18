@@ -117,33 +117,21 @@ char* I_FindFile(const char* wfname, const char* ext)
 	// Precalculate a length we will need in the loop
 	size_t  pl = strlen(wfname) + strlen(ext) + 4;
 
-	for (i = 0; i<8; i++) {
+	for (i = 0; i<3; i++) {
 		char  * p;
 		const char  * d = NULL;
 		const char  * s = NULL;
 		// Each entry in the switch sets d to the directory to look in,
 		// and optionally s to a subdirectory of d
 		switch (i) {
-		case 1:
-			if (!(d = getenv("DOOMWADDIR"))) continue;
 		case 0:
+			d = I_DoomExeDir();
+			break;
+		case 1:
+			s = "sdmc:/doom/";
 			break;
 		case 2:
 			d = DOOMWADDIR;
-			break;
-		case 4:
-			d = "/usr/share/games/doom/";
-			break;
-		case 5:
-			d = "/usr/local/share/games/doom/";
-			break;
-		case 6:
-			d = I_DoomExeDir();
-			break;
-		case 3:
-			s = "doom/";
-		case 7:
-			if (!(d = getenv("HOME"))) continue;
 			break;
 #ifdef SIMPLECHECKS
 		default:
@@ -249,12 +237,13 @@ const char *I_DoomExeDir(void)
 {
 	static char *base = 0;
 #if 1
-	static const char current_dir_dummy[] = { "sdmc:/" }; // proff - rem extra slash 8/21/03
+	static const char current_dir_dummy[] = { "sdmc:/3ds/prboom3ds/" }; // proff - rem extra slash 8/21/03
 	if (base) return base;
 	base = malloc(PATH_MAX);
-	if (!getcwd(base, PATH_MAX))
+	if (!getcwd(base, PATH_MAX) || myargc == 0)
 		strcpy(base, current_dir_dummy);
 	printf("base dir: %s\n",base);
+	//Pause(5000);
 #else
 	static const char current_dir_dummy[] = { "." }; // proff - rem extra slash 8/21/03
 	if (!base)        // cache multiple requests

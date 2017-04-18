@@ -6,10 +6,14 @@
 ---------------------------------------------------------------------------------*/
 #include <3ds.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "lprintf.h"
 #include "m_argv.h"
+#include "z_zone.h"
 
+#if 0
 #include "khax.h"
+#endif
 
 char *DS_USERNAME = "username";
 
@@ -47,12 +51,11 @@ void drawFrame()
 int audio_initialized = 0;
 
 static void sys_init() {
-	Result ret;
-
 	gfxInitDefault();
 	//con_init();
 	consoleInit(GFX_BOTTOM, 0);
 
+#if 0
 	//only do this on ninjhax 1
 	if (!hbInit()) {
 
@@ -61,6 +64,7 @@ static void sys_init() {
 		printf("khaxInit returned %08lx\n", result);
 		svcSleepThread(2000000000);
 	}
+#endif
 	
 	gfxSet3D(true);
 
@@ -69,10 +73,10 @@ static void sys_init() {
 	//consoleSetWindow(0, 0, 0, 40, 15);
 	keyboard_init();
 	//SD_init();
-	sdmcInit();
-	switchConsole();
+	//sdmcInit();
 	gfxFlushBuffers();
 	gfxSwapBuffers();
+	//ndspInit();
 	if (csndInit() == 0) {
 		printf("csndInit ok!\n");
 		audio_initialized = 1;
@@ -93,7 +97,10 @@ void I_Quit() {
 		csndExit();
 		printf("csndExit ok!\n");
 	}
+	//ndspExit();
+#if 0
 	khaxExit();
+#endif
 	gfxExit();
 	//svcSleepThread(5000000000LL);
 }
@@ -108,45 +115,25 @@ void keyboardStart() {
 void keyboardEnd() {
 }
 
-void switchConsole()
-{
-	// ### LOWER SCREEN #### //
-	if (gen_console_enable)
-	{
-	}
-	else
-	{
-		//setAutoMap();
-		/**
-		* adjusted in st_lib.h (static int instead of #define)
-		* hu_lib.h includes st_lib.h and uses same FG screen[x] identifier
-		* if no console, draw stats to lower screen!
-		* Also increase upper screen display size.
-		**/
-		//FG = 1;
-		//if (gamestate == GS_LEVEL)
-		//	players[consoleplayer].message = s_CONSOLESWAPOFF;
-	}
-
-	//if (gamestate == GS_LEVEL)
-	//	M_SizeDisplay(FG);
-}
-
 //---------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {
 	if (argv) {
 		myargc = 1;
-		myargv = argv;
+		myargv = (const char * const *)argv;
 	}
 	else {
 		myargc = 0;// argc;
-		myargv = "\0\0\0\0";// argv;
+		myargv = (const char * const *)"\0\0\0\0";// argv;
 	}
 
 	//---------------------------------------------------------------------------------
 	sys_init();
 	printf("system initialized\n");
-
+	printf("%d %p\n", argc, argv);
+	for (int i = 0; i < argc; i++) {
+		printf("%d %s\n", i, argv[i]);
+	}
+	
 
 	/* Version info */
 	lprintf(LO_INFO, "PrBoom 3DS\n");
@@ -172,7 +159,7 @@ int main(int argc, char *argv[]) {
 	Z_Init();                  /* 1/18/98 killough: start up memory stuff first */
 
 	atexit(I_Quit);
-	
+
 	//I_PreInitGraphics();
 	D_DoomMain();
 

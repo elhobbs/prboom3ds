@@ -40,7 +40,7 @@
     <NMakeOutput>prboom.nds</NMakeOutput>
     <NMakeCleanCommandLine>make clean</NMakeCleanCommandLine>
     <NMakeReBuildCommandLine>make clean &amp;&amp; make -r 2&gt;&amp;1 | sed -e %27s/\(.[a-zA-Z]\+\):\([0-9]\+\):/\1(\2):/</NMakeReBuildCommandLine>
-    <NMakePreprocessorDefinitions>ARM11;_HAVE_STDC</NMakePreprocessorDefinitions>
+    <NMakePreprocessorDefinitions>ARM11;_HAVE_STDC;_3DS</NMakePreprocessorDefinitions>
     <NMakeIncludeSearchPath>C:\devkitPro\libctru\include;C:\devkitPro\devkitARM\arm-none-eabi\include;c:\devl\prboom3ds\arm9\include;c:\devl\prboom3ds\src</NMakeIncludeSearchPath>
     <IncludePath />
     <ReferencePath />

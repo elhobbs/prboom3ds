@@ -1,12 +1,9 @@
 #pragma once
 
-#define KHAX_DEBUG
-//#define KHAX_DEBUG_DUMP_DATA
-
 #ifdef KHAX_DEBUG
 	#define KHAX_printf(...) printf(__VA_ARGS__), gspWaitForVBlank(), gfxFlushBuffers(), gfxSwapBuffers()
 #else
-	#define KHAX_printf static_cast<void>
+	#define KHAX_printf(...) gspWaitForVBlank(), gfxFlushBuffers(), gfxSwapBuffers()
 #endif
 
 // Shut up IntelliSense warnings when using MSVC as an IDE, even though MSVC will obviously never
@@ -23,6 +20,7 @@
 #endif
 
 #define KHAX_lengthof(...) (sizeof(__VA_ARGS__) / sizeof((__VA_ARGS__)[0]))
+#define KHAX_UNUSED(...) static_cast<void>(__VA_ARGS__)
 
 //------------------------------------------------------------------------------------------------
 namespace KHAX

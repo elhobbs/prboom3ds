@@ -17,7 +17,7 @@ extern boolean nosfxparm;
 #define S_STEREO_SWING (96 * FRACUNIT)
 #define S_ATTENUATOR ((S_CLIPPING_DIST - S_CLOSE_DIST) >> FRACBITS)
 
-#define MAX_CHANNELS	23
+#define MAX_CHANNELS	22
 
 // Adjustable by menu.
 #define NORM_PITCH 128

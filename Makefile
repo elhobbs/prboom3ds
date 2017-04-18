@@ -22,9 +22,10 @@ BUILD		:=	build
 SOURCES		:=	src arm9/source arm11/source khax
 DATA		:=	dat
 INCLUDES	:=	include src arm9/include arm11/include khax
-APP_TITLE	:=	prboom3ds
+APP_TITLE	:=	prboom
 APP_DESCRIPTION	:= prboom for the 3ds
 APP_AUTHOR	:= elhobbs
+
 
 
 export	OUTPUT_FORMAT	?= 3dsx
@@ -32,9 +33,9 @@ export	OUTPUT_FORMAT	?= 3dsx
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard
+ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:=	-g -Wall -O2 -mword-relocations -save-temps \
+CFLAGS	:=	-g -Wall -O2 -mword-relocations \
 			-fomit-frame-pointer -ffast-math \
 			$(ARCH)
 
@@ -43,8 +44,7 @@ CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 
 ASFLAGS	:=	-g $(ARCH)
-LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) \
-			-Wl,-Map,$(TARGET).map
+LDFLAGS	=	-specs=3dsx.specs -g $(ARCH) -Wl,-Map,$(TARGET).map
 
 LIBS	:= -lctru -lm
 
@@ -157,10 +157,10 @@ $(OUTPUT).cia	:	$(OUTPUT).elf
 	arm-none-eabi-strip $(TARGET)_stripped.elf
 ifeq ($(shell uname),Linux)
 	makerom -f cci -rsf $(TOPDIR)/resources/gw_workaround.rsf -target d -exefslogo -elf $(TARGET)_stripped.elf -icon $(TOPDIR)/resources/icon.bin -banner $(TOPDIR)/resources/banner.bin -o $(TOPDIR)/$(notdir $(OUTPUT)).3ds
-	makerom -f cia -o $(OUTPUT).cia -elf $(TARGET)_stripped.elf -rsf $(TOPDIR)/resources/build_cia.rsf -icon $(TOPDIR)/resources/icon.bin -banner $(TOPDIR)/resources/banner.bin -exefslogo -target t
+	makerom -f cia -o $(OUTPUT).cia -elf $(TARGET)_stripped.elf -rsf $(TOPDIR)/resources/template.rsf -icon $(TOPDIR)/resources/icon.bin -banner $(TOPDIR)/resources/banner.bin -exefslogo -target t
 else
-	$(TOPDIR)\resources\makerom.exe -f cci -rsf $(TOPDIR)\resources\gw_workaround.rsf -target d -exefslogo -elf $(TARGET)_stripped.elf -icon $(TOPDIR)\resources\icon.bin -banner $(TOPDIR)\resources\banner.bin -o $(TOPDIR)\$(notdir $(OUTPUT)).3ds
-	$(TOPDIR)\resources\makerom.exe -f cia -o $(OUTPUT).cia -elf $(TARGET)_stripped.elf -rsf $(TOPDIR)\resources\build_cia.rsf -icon $(TOPDIR)\resources\icon.bin -banner $(TOPDIR)\resources\banner.bin -exefslogo -target t
+	$(TOPDIR)\resources\makerom32.exe -f cci -rsf $(TOPDIR)\resources\gw_workaround.rsf -target d -exefslogo -elf $(TARGET)_stripped.elf -icon $(TOPDIR)\resources\icon.bin -banner $(TOPDIR)\resources\banner.bin -o $(TOPDIR)\$(notdir $(OUTPUT)).3ds
+	$(TOPDIR)\resources\makerom32.exe -f cia -o $(OUTPUT).cia -elf $(TARGET)_stripped.elf -rsf $(TOPDIR)\resources\template.rsf -icon $(TOPDIR)\resources\icon.bin -banner $(TOPDIR)\resources\banner.bin -exefslogo -target t
 endif
 #	@echo built ... $(notdir $@)
 

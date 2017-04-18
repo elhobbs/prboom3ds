@@ -37,7 +37,7 @@ void P_RecordChecksum(const char *file) {
             I_Error("cannot open %s for writing checksum:\n%s\n",
                     file, strerror(errno));
         }
-        atexit(p_checksum_cleanup);
+        //atexit(p_checksum_cleanup);
     }
 
     MD5Init(&md5global);

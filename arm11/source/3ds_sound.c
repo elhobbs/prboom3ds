@@ -159,11 +159,16 @@ void MIX_init();
 void MIX_exit();
 void mux_exit();
 
+void mus_stats();
+void mus_dsp_submit();
+
 void S_UpdateSounds(void* listener_p) {
 	mobj_t *listener = (mobj_t*)listener_p;
 	if (!snd_card || nosfxparm)
 		return;
 	MIX_UpdateSounds(listener);
+	//mus_stats();
+	//mus_dsp_submit();
 }
 void mus_init();
 extern int audio_initialized;

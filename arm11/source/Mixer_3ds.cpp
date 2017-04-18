@@ -95,7 +95,7 @@ void MixerHardware3DS::update(short *pAudioData, int count)
 	GSPGPU_FlushDataCache(m_soundBuffer, m_bufferSize);
 }
 
-#if 1
+#if 0
 MixerHardware3DS g_mixer(32728, 1);
 
 extern "C" void mixer_update(short *pAudioData, int count) {
