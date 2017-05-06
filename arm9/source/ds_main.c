@@ -52,6 +52,7 @@ void drawFrame()
 }
 
 int audio_initialized = 0;
+static u32 old_time_limit = UINT32_MAX;
 
 static void sys_init() {
 	gfxInitDefault();
@@ -90,6 +91,12 @@ static void sys_init() {
 
 	osSetSpeedupEnable(true);
 	//while (1);
+	//stolen from FBI - thanks steveice10
+	APT_GetAppCpuTimeLimit(&old_time_limit);
+	Result cpuRes = APT_SetAppCpuTimeLimit(30);
+	if (R_FAILED(cpuRes)) {
+		printf("Failed to set syscore CPU time limit: %08lX", cpuRes);
+	}
 }
 
 void I_Quit() {
@@ -100,6 +107,12 @@ void I_Quit() {
 		csndExit();
 		printf("csndExit ok!\n");
 	}
+	if (old_time_limit != UINT32_MAX) {
+		APT_SetAppCpuTimeLimit(old_time_limit);
+	}
+
+	gfxSet3D(false);
+	osSetSpeedupEnable(false);
 	//ndspExit();
 #if 0
 	khaxExit();

@@ -418,11 +418,6 @@ static void D_DoomLoop(void)
 		//gspWaitForEvent(GSPEVENT_VBlank0, false);
 	}
 
-	gfxExit();
-	irrstExit();
-	hidExit();
-	aptExit();
-	srvExit();
 }
 
 //
