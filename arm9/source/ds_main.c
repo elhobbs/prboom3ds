@@ -10,10 +10,13 @@
 #include "lprintf.h"
 #include "m_argv.h"
 #include "z_zone.h"
+#include "keyboard.h"
 
 #if 0
 #include "khax.h"
 #endif
+
+//u32 __stacksize__ = 1024 * 1024;
 
 char *DS_USERNAME = "username";
 
@@ -54,6 +57,8 @@ static void sys_init() {
 	gfxInitDefault();
 	//con_init();
 	consoleInit(GFX_BOTTOM, 0);
+	printf("console init\n");
+	//svcSleepThread(5000000000LL);
 
 #if 0
 	//only do this on ninjhax 1
@@ -68,25 +73,23 @@ static void sys_init() {
 	
 	gfxSet3D(true);
 
-	srand(svcGetSystemTick());
+	//srand(svcGetSystemTick());
 
 	//consoleSetWindow(0, 0, 0, 40, 15);
-	keyboard_init();
+	dkeyboard_init();
+	printf("keyboard init\n");
+	//svcSleepThread(5000000000LL);
 	//SD_init();
 	//sdmcInit();
 	gfxFlushBuffers();
 	gfxSwapBuffers();
-	//ndspInit();
-	if (csndInit() == 0) {
-		printf("csndInit ok!\n");
-		audio_initialized = 1;
-	}
-	else {
-		printf("csndInit failed!\n");
-	}
+	printf("sys init\n");
+	//svcSleepThread(5000000000LL);
+
 	//svcSleepThread(5000000000);
 
 	osSetSpeedupEnable(true);
+	//while (1);
 }
 
 void I_Quit() {
@@ -119,20 +122,21 @@ void keyboardEnd() {
 int main(int argc, char *argv[]) {
 	if (argv) {
 		myargc = 1;
-		myargv = (const char * const *)argv;
+		myargv = argv;
 	}
 	else {
-		myargc = 0;// argc;
-		myargv = (const char * const *)"\0\0\0\0";// argv;
+		myargc = argc;
+		myargv = "\0\0\0\0";// argv;
 	}
 
 	//---------------------------------------------------------------------------------
 	sys_init();
 	printf("system initialized\n");
 	printf("%d %p\n", argc, argv);
-	for (int i = 0; i < argc; i++) {
-		printf("%d %s\n", i, argv[i]);
-	}
+	//svcSleepThread(5000000000LL);
+	//for (int i = 0; i < argc; i++) {
+	//	printf("%d %s\n", i, argv[i]);
+	//}
 	
 
 	/* Version info */

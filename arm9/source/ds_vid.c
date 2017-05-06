@@ -443,11 +443,11 @@ void I_StartTic(void) {
 			event.data1 = key;
 			D_PostEvent(&event);
 		}
-		keyboard_input();
+		dkeyboard_input();
 	}
 	else {
 		DS_Controls();
-		keyboard_input();
+		dkeyboard_input();
 	}
 }
 
@@ -755,7 +755,7 @@ void I_FinishUpdate(void)
 #endif
 
 	gfxFlushBuffers();
-	//gspWaitForVBlank();
+	gspWaitForVBlank();
 	gfxSwapBuffers();
 #if 0
 	{

@@ -261,19 +261,10 @@
     <ClCompile Include="arm11\source\console.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
-    <ClCompile Include="arm11\source\file.c">
-      <Filter>Arm11\source</Filter>
-    </ClCompile>
-    <ClCompile Include="arm11\source\3ds_mix.c">
-      <Filter>Arm11\source</Filter>
-    </ClCompile>
     <ClCompile Include="arm11\source\3ds_sound.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
     <ClCompile Include="arm11\source\dbopl.c">
-      <Filter>Arm11\source</Filter>
-    </ClCompile>
-    <ClCompile Include="arm11\source\Mixer_3ds.cpp">
       <Filter>Arm11\source</Filter>
     </ClCompile>
     <ClCompile Include="arm11\source\musplay.c">
@@ -288,10 +279,7 @@
     <ClCompile Include="arm11\source\keyboard.c">
       <Filter>Arm11\source</Filter>
     </ClCompile>
-    <ClCompile Include="arm11\source\Mixer_dsp.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="arm11\source\hw_mix.c">
+    <ClCompile Include="arm11\source\ndsp_sound.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -537,12 +525,6 @@
       <Filter>Arm11\include</Filter>
     </ClInclude>
     <ClInclude Include="arm11\source\dbopl.h">
-      <Filter>Arm11\include</Filter>
-    </ClInclude>
-    <ClInclude Include="arm11\source\Mixer_3ds.h">
-      <Filter>Arm11\include</Filter>
-    </ClInclude>
-    <ClInclude Include="arm11\source\MixerHardware.h">
       <Filter>Arm11\include</Filter>
     </ClInclude>
     <ClInclude Include="arm11\source\musplay.h">

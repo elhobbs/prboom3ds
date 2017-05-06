@@ -1,4 +1,4 @@
 #pragma once
 
-void keyboard_draw();
-void keyboard_input();
+void dkeyboard_draw();
+void dkeyboard_input();

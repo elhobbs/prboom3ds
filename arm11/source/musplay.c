@@ -1151,7 +1151,6 @@ static void dsp_init() {
 	}
 	memset(lpData, 0, gSndBufSize);
 #ifdef _3DS
-	ndspInit();
 	ndspChnSetInterp(MUS_MIX_CHANNEL, NDSP_INTERP_NONE);
 	ndspChnSetRate(MUS_MIX_CHANNEL, (float)snd_speed);
 	ndspChnSetFormat(MUS_MIX_CHANNEL, NDSP_FORMAT_STEREO_PCM16);
@@ -1179,7 +1178,6 @@ static void dsp_shutdown() {
 #ifdef _3DS
 	ndspChnWaveBufClear(MUS_MIX_CHANNEL);
 	svcSleepThread(20000);
-	ndspExit();
 #endif
 	snd_init = false;
 }

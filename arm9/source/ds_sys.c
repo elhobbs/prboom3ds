@@ -88,7 +88,7 @@ boolean I_StartDisplay(void)
 void I_EndDisplay(void)
 {
 	displaytime = GetTicks() - start_displaytime;
-	keyboard_draw();
+	dkeyboard_draw();
 	InDisplay = false;
 }
 

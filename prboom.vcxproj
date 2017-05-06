@@ -62,16 +62,12 @@
     <Text Include="readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="arm11\source\3ds_mix.c" />
     <ClCompile Include="arm11\source\3ds_sound.c" />
     <ClCompile Include="arm11\source\console.c" />
     <ClCompile Include="arm11\source\dbopl.c" />
-    <ClCompile Include="arm11\source\file.c" />
-    <ClCompile Include="arm11\source\hw_mix.c" />
     <ClCompile Include="arm11\source\keyboard.c" />
-    <ClCompile Include="arm11\source\Mixer_3ds.cpp" />
-    <ClCompile Include="arm11\source\Mixer_dsp.cpp" />
     <ClCompile Include="arm11\source\musplay.c" />
+    <ClCompile Include="arm11\source\ndsp_sound.c" />
     <ClCompile Include="arm11\source\opl.c" />
     <ClCompile Include="arm11\source\opl_queue.c" />
     <ClCompile Include="arm9\source\ds_main.c" />
@@ -154,8 +150,6 @@
     <ClInclude Include="arm11\include\Mixer_dsp.h" />
     <ClInclude Include="arm11\source\dbopl.h" />
     <ClInclude Include="arm11\source\keyboard.h" />
-    <ClInclude Include="arm11\source\MixerHardware.h" />
-    <ClInclude Include="arm11\source\Mixer_3ds.h" />
     <ClInclude Include="arm11\source\musplay.h" />
     <ClInclude Include="arm11\source\opl.h" />
     <ClInclude Include="arm11\source\opl_queue.h" />

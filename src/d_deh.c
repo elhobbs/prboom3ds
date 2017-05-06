@@ -50,6 +50,7 @@
 
 // CPhipps - modify to use logical output routine
 #include "lprintf.h"
+#include <3ds/services/hid.h>
 
 #define TRUE 1
 #define FALSE 0
@@ -1363,36 +1364,60 @@ char *deh_spritenames[NUMSPRITES + 1];
 char *deh_musicnames[NUMMUSIC + 1];
 char *deh_soundnames[NUMSFX + 1];
 
+#define STRINGIZE_DETAIL(x) #x
+#define STRINGIZE(x) STRINGIZE_DETAIL(x)
+
+int waithere(char *str) {
+#if 0
+	printf("%s ...", str);
+	do {
+		hidScanInput();
+	} while ((hidKeysHeld() & KEY_A) == 0);
+	do {
+		hidScanInput();
+	} while ((hidKeysHeld() & KEY_A) != 0);
+	printf("done.\n");
+#endif
+	return 0;
+}
+
+
 void D_BuildBEXTables(void)
 {
    int i;
 
    //printf("D_BuildBEXTables: 0\n");
    // moved from ProcessDehFile, then we don't need the static int i
+   waithere(__FILE__":"STRINGIZE(__LINE__));
    for (i = 0; i < NUMSTATES; i++)  // remember what they start as for deh xref
      deh_codeptr[i] = states[i].action;
 
    //printf("D_BuildBEXTables: 1\n");
+   waithere(__FILE__":"STRINGIZE(__LINE__));
    for (i = 0; i < NUMSPRITES; i++)
       deh_spritenames[i] = strdup(sprnames[i]);
    deh_spritenames[NUMSPRITES] = NULL;
 
    //printf("D_BuildBEXTables: 2\n");
+   waithere(__FILE__":"STRINGIZE(__LINE__));
    for (i = 1; i < NUMMUSIC; i++)
       deh_musicnames[i] = strdup(S_music[i].name);
    deh_musicnames[0] = deh_musicnames[NUMMUSIC] = NULL;
 
    //printf("D_BuildBEXTables: 3 %d\n", NUMSFX);
+   waithere(__FILE__":"STRINGIZE(__LINE__));
    for (i = 1; i < NUMSFX; i++) {
-	   //printf("deh_soundnames(%d) : %s\n", i, S_sfx[i].name);
+	   printf("deh_soundnames(%d) : %s\n", i, S_sfx[i].name);
 	   if (S_sfx[i].name)
 			deh_soundnames[i] = strdup(S_sfx[i].name);
 	   else
 		   deh_soundnames[i] = 0;
    }
+   waithere(__FILE__":"STRINGIZE(__LINE__));
    deh_soundnames[0] = deh_soundnames[NUMSFX] = NULL;
 
-   //printf("D_BuildBEXTables: 4\n");
+   printf("D_BuildBEXTables: 4\n");
+   waithere(__FILE__":"STRINGIZE(__LINE__));
 }
 
 // ====================================================================

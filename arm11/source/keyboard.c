@@ -103,7 +103,7 @@ static char key_arrow[12][12] = {
 	{ 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, }
 };
 
-void keyboard_init()
+void dkeyboard_init()
 {
 	int i, len;
 	int count = sizeof(key_array) / sizeof(sregion_t);
@@ -276,7 +276,7 @@ int keyboard_scankeys()
 	return key_down;
 }
 
-void keyboard_input() {
+void dkeyboard_input() {
 	static int key_last = 0;
 	static int key = 0;
 	event_t event;
@@ -493,7 +493,7 @@ void keyboard_draw_region(sregion_t *region, int index, u16 c) {
 	}
 }
 
-void keyboard_draw()
+void dkeyboard_draw()
 {
 	int i, h;
 	sregion_t *region;

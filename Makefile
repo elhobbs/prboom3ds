@@ -35,11 +35,15 @@ export	OUTPUT_FORMAT	?= 3dsx
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS	:=	-g -Wall -O2 -mword-relocations \
+CFLAGS	:=	-g -Wall -O2 -mword-relocations -save-temps \
 			-fomit-frame-pointer -ffast-math \
 			$(ARCH)
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS
+CFLAGS1	:=	-g -O0 -mword-relocations \
+			-ffast-math \
+			$(ARCH)
+
+CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -DHAVE_CONFIG_H
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 

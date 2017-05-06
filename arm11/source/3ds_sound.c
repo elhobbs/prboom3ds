@@ -1,3 +1,4 @@
+#include "config.h"
 #include "sounds.h"
 #include "d_main.h"
 #include "doomstat.h"
@@ -206,11 +207,19 @@ void S_Init(int sfxVolume, int musicVolume) {
 	nosfxparm = 0;
 	nomusicparm = 0;
 
-	if (!audio_initialized) {
+	if (ndspInit()) {
+		audio_initialized = 0;
+		nosfxparm = 1;
+	}
+	else {
+		audio_initialized = 1;
+	}
+
+	/*if (!audio_initialized) {
 		nosfxparm = 1;
 		nomusicparm = 1;
 		return;
-	}
+	}*/
 	MIX_init();
 	mus_init();
 }
@@ -225,7 +234,5 @@ void S_Exit() {
 	S_Stop();
 	MIX_exit();
 	mus_exit();
-	//flush csnd command buffers
-	csndExecCmds(true);
-	//svcSleepThread(5000000000LL);
+	ndspExit();
 }
