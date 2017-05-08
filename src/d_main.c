@@ -268,8 +268,8 @@ drawagain:
     }
 
 	// Work out if the player view is visible, and if there is a border
-    viewactive = (!(automapmode & am_active) || (automapmode & am_overlay)) && !inhelpscreens;
-    isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens && (automapmode & am_active));
+    viewactive = /*(!(automapmode & am_active) || (automapmode & am_overlay)) &&*/ !inhelpscreens;
+    isborder = viewactive ? (viewheight != SCREENHEIGHT) : (!inhelpscreens /*&& (automapmode & am_active)*/);
 
 	if (oldgamestate != GS_LEVEL) {
       R_FillBackScreen ();    // draw the pattern into the back screen
@@ -295,16 +295,22 @@ drawagain:
 
 	MIX_Update_();
 
-	if (automapmode & am_active)
-      AM_Drawer();
-
-	ST_Drawer(
-        ((viewheight != SCREENHEIGHT)
-         || ((automapmode & am_active) && !(automapmode & am_overlay))),
+	if ((renderframe == 0) && (automapmode & am_active) != 0) {
+		AM_Drawer();
+	}
+	if (viewheight == SCREENHEIGHT) {
+		SCREENWIDTH = 320;
+	}
+	ST_Drawer(true,
+        //((viewheight != SCREENHEIGHT)
+        // || ((automapmode & am_active) && !(automapmode & am_overlay))),
         redrawborderstuff,
         (menuactive == mnact_full));
 
 	HU_Drawer();
+	if (viewheight == SCREENHEIGHT) {
+		SCREENWIDTH = 400;
+	}
   }
 
   isborderstate = isborder;

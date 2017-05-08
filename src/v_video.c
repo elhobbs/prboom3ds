@@ -1018,7 +1018,7 @@ static void WRAP_V_DrawLine(fline_t* fl, int color)
   }
 #endif
 
-#define PUTDOT(xx,yy,cc) V_PlotPixel(0,xx,yy,(byte)cc)
+#define PUTDOT(xx,yy,cc) V_PlotPixel(5,xx,yy,(byte)cc)
 
   dx = fl->b.x - fl->a.x;
   ax = 2 * (dx<0 ? -dx : dx);

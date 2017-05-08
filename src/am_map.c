@@ -83,7 +83,7 @@ int map_secret_after;
 #define BC 247
 
 // drawing stuff
-#define FB    0
+#define FB    5
 
 // scale on entry
 #define INITSCALEMTOF (.2*FRACUNIT)
@@ -427,7 +427,7 @@ static void AM_initVariables(void)
   int pnum;
   static event_t st_notify = { ev_keyup, AM_MSGENTERED, 0, 0 };
 
-  automapmode |= am_active;
+  automapmode |= (am_active | am_follow | am_rotate);
 
   f_oldloc.x = INT_MAX;
 
@@ -503,8 +503,8 @@ static void AM_LevelInit(void)
   leveljuststarted = 0;
 
   f_x = f_y = 0;
-  f_w = SCREENWIDTH;           // killough 2/7/98: get rid of finit_ vars
-  f_h = SCREENHEIGHT-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
+  f_w = screens[5].width;           // killough 2/7/98: get rid of finit_ vars
+  f_h = screens[5].height-ST_SCALED_HEIGHT;// to allow runtime setting of width/height
 
   AM_findMinMaxBoundaries();
   scale_mtof = FixedDiv(min_scale_mtof, (int) (0.7*FRACUNIT));
@@ -528,6 +528,10 @@ void AM_Stop (void)
   automapmode &= ~am_active;
   ST_Responder(&st_notify);
   stopped = true;
+  if (screens[5].data) {
+	  memset(screens[5].data, 0, screens[5].width * (screens[5].height - ST_SCALED_HEIGHT));
+	  copy_subscreen(0);
+  }
 }
 
 //

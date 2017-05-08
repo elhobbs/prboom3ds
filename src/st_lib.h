@@ -42,7 +42,7 @@
 // Background and foreground screen numbers
 //
 #define BG 4
-#define FG 0
+#define FG ((viewheight != SCREENHEIGHT) ? 0 : 5)
 
 //
 // Typedefs of widgets

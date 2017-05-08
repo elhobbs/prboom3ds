@@ -88,7 +88,8 @@ boolean I_StartDisplay(void)
 void I_EndDisplay(void)
 {
 	displaytime = GetTicks() - start_displaytime;
-	dkeyboard_draw();
+	keyboard_draw();
+	copy_subscreen(GFX_LEFT);
 	InDisplay = false;
 }
 

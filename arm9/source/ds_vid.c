@@ -18,6 +18,7 @@
 #include "st_stuff.h"
 #include "w_wad.h"
 #include "keyboard.h"
+#include "d_main.h"
 
 #ifdef DISABLE_DOUBLEBUFFER
 int use_doublebuffer = 0;
@@ -443,11 +444,11 @@ void I_StartTic(void) {
 			event.data1 = key;
 			D_PostEvent(&event);
 		}
-		dkeyboard_input();
+		keyboard_input();
 	}
 	else {
 		DS_Controls();
-		dkeyboard_input();
+		keyboard_input();
 	}
 }
 
@@ -527,6 +528,13 @@ void I_SetRes(void)
 	screens[4].byte_pitch = SCREENPITCH;
 	screens[4].short_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
 	screens[4].int_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
+
+	// subscreen
+	screens[5].width = 320;
+	screens[5].height = 240;
+	screens[5].byte_pitch = 320;
+	screens[5].short_pitch = 320 / V_GetModePixelDepth(VID_MODE16);
+	screens[5].int_pitch = 320 / V_GetModePixelDepth(VID_MODE32);
 
 	lprintf(LO_INFO, "I_SetRes: Using resolution %dx%d\n", SCREENWIDTH, SCREENHEIGHT);
 }
@@ -737,6 +745,56 @@ void copy_screen(int side) {
 			bufAdr[v] = pal3ds[src[v1] * 3 + 0];
 			bufAdr[v + 1] = pal3ds[src[v1] * 3 + 1];
 			bufAdr[v + 2] = pal3ds[src[v1] * 3 + 2];
+		}
+	}
+}
+
+enum automapmode_e automapmode; // Mode that the automap is in
+
+#define	automapactive ((automapmode & am_active) != 0)
+extern boolean automapontop;
+
+int keyboard_top();
+
+void copy_subscreen(int side) {
+	u16 screen_width, screen_height;
+	u16* bufAdr = (u16*)gfxGetFramebuffer(GFX_BOTTOM, side, &screen_height, &screen_width);
+	byte *src = screens[5].data;
+	int w, h;
+	int sw, sh;
+	int rows_to_copy;
+	int row_start;
+	u32 c;
+
+	sw = screens[5].width;
+	sh = screens[5].height;
+
+	//if (automapactive && !automapontop) {
+		rows_to_copy = 240;
+		row_start = 0;
+	//}
+	//else {
+	//	rows_to_copy = 66;
+	//	row_start = 0;
+	//}
+
+	for (w = 0; w<320; w++)
+	{
+		u32 v1 = (rows_to_copy-1) * sw + w;
+		u32 v = (w * 240) + row_start;
+		for (h = 0; h<rows_to_copy; h++)
+		{
+			c = src[v1] * 3;
+			switch (c) {
+			case 0:
+				bufAdr[v] = 0;
+				break;
+			default:
+				bufAdr[v] = RGB8_to_565(pal3ds[c + 2], pal3ds[c + 1], pal3ds[c + 0]);
+				break;
+			}
+			v1 -= sw;
+			v++;
 		}
 	}
 }

@@ -77,7 +77,7 @@ static void sys_init() {
 	//srand(svcGetSystemTick());
 
 	//consoleSetWindow(0, 0, 0, 40, 15);
-	dkeyboard_init();
+	keyboard_init();
 	printf("keyboard init\n");
 	//svcSleepThread(5000000000LL);
 	//SD_init();
