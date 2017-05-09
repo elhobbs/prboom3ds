@@ -25,14 +25,14 @@ static char key_buttons[] = "1234567890";
 sregion_t key_button_array[] = {
 	{ 32, 0, 0, 0, 0, 0, key_buttons, key_buttons },
 	{ 270, 0, 6, 0, 0, 0x200, 0 },
-	{ -30, 32 * 1, 7, 0, 0, KEY_AUX1, KEY_AUX1 },
-	{ -30, 32 * 2, 7, 0, 0, KEY_AUX2, KEY_AUX2 },
-	{ -30, 32 * 3, 7, 0, 0, KEY_AUX3, KEY_AUX3 },
-	{ -30, 32 * 4, 7, 0, 0, KEY_AUX4, KEY_AUX4 },
-	{ 254, 32 * 1, 7, 0, 0, KEY_AUX5, KEY_AUX5 },
-	{ 254, 32 * 2, 7, 0, 0, KEY_AUX6, KEY_AUX6 },
-	{ 254, 32 * 3, 7, 0, 0, KEY_AUX7, KEY_AUX7 },
-	{ 254, 32 * 4, 7, 0, 0, KEY_AUX8, KEY_AUX8 },
+	{ -30, 32 * 1, 7, 0, 0, KEYD_AUX1, KEYD_AUX1 },
+	{ -30, 32 * 2, 7, 0, 0, KEYD_AUX2, KEYD_AUX2 },
+	{ -30, 32 * 3, 7, 0, 0, KEYD_AUX3, KEYD_AUX3 },
+	{ -30, 32 * 4, 7, 0, 0, KEYD_AUX4, KEYD_AUX4 },
+	{ 254, 32 * 1, 7, 0, 0, KEYD_AUX5, KEYD_AUX5 },
+	{ 254, 32 * 2, 7, 0, 0, KEYD_AUX6, KEYD_AUX6 },
+	{ 254, 32 * 3, 7, 0, 0, KEYD_AUX7, KEYD_AUX7 },
+	{ 254, 32 * 4, 7, 0, 0, KEYD_AUX8, KEYD_AUX8 },
 };
 
 static char key_row_1[] = "~1234567890-=";
@@ -58,23 +58,23 @@ static char key_return[] = "Rtrn";
 
 static sregion_t key_array[] = {
 	{ 0, 0 * 16, 0, 0, 0, 0, key_row_1, key_row_1_shift },
-	{ 13 * 16 + 2, 0 * 16, 1, 0, 0, KEY_BACKSPACE, key_backspace },
-	{ 0, 1 * 16, 1, 0, 0, KEY_TAB, key_tab },
+	{ 13 * 16 + 2, 0 * 16, 1, 0, 0, KEYD_BACKSPACE, key_backspace },
+	{ 0, 1 * 16, 1, 0, 0, KEYD_TAB, key_tab },
 	{ 4 * 8, 1 * 16, 0, 0, 0, 0, key_row_2, key_row_2_shift },
-	{ 0, 2 * 16, 1, 0, 0, KEY_CAPSLOCK, key_caps },
+	{ 0, 2 * 16, 1, 0, 0, KEYD_CAPSLOCK, key_caps },
 	{ 5 * 8, 2 * 16, 0, 0, 0, 0, key_row_3, key_row_3_shift },
 	{ 5 * 8 +
 	11 * 16 +
-	2, 2 * 16, 1, 0, 0, KEY_ENTER, key_return },
-	{ 0, 3 * 16, 1, 0, 0, KEY_RSHIFT, key_shift },
+	2, 2 * 16, 1, 0, 0, KEYD_ENTER, key_return },
+	{ 0, 3 * 16, 1, 0, 0, KEYD_RSHIFT, key_shift },
 	{ 6 * 8, 3 * 16, 0, 0, 0, 0, key_row_4, key_row_4_shift },
-	{ 256 - 16 * 2, 3 * 16, 2, 0, 0, KEY_UPARROW, 0 },
-	{ 0, 4 * 16, 1, 0, 0, KEY_RCTRL, key_ctrl },
-	{ 5 * 8, 4 * 16, 1, 0, 0, KEY_RALT, key_alt },
+	{ 256 - 16 * 2, 3 * 16, 2, 0, 0, KEYD_UPARROW, 0 },
+	{ 0, 4 * 16, 1, 0, 0, KEYD_RCTRL, key_ctrl },
+	{ 5 * 8, 4 * 16, 1, 0, 0, KEYD_RALT, key_alt },
 	{ 9 * 8, 4 * 16, 1, 0, 0, ' ', key_space },
-	{ 256 - 16 * 3, 4 * 16, 3, 0, 0, KEY_LEFTARROW, 0 },
-	{ 256 - 16 * 2, 4 * 16, 4, 0, 0, KEY_DOWNARROW, 0 },
-	{ 256 - 16 * 1, 4 * 16, 5, 0, 0, KEY_RIGHTARROW, 0 },
+	{ 256 - 16 * 3, 4 * 16, 3, 0, 0, KEYD_LEFTARROW, 0 },
+	{ 256 - 16 * 2, 4 * 16, 4, 0, 0, KEYD_DOWNARROW, 0 },
+	{ 256 - 16 * 1, 4 * 16, 5, 0, 0, KEYD_RIGHTARROW, 0 },
 	{ 270, 4 * 16, 6, 0, 0, 0x200, 0 },
 };
 
@@ -217,12 +217,12 @@ void keyboard_mark(sregion_t *region, int index, int in_touch) {
 				key_touching = last_touching = 0;
 				key_touching_index = last_index = -1;
 				break;
-			case KEY_RSHIFT:
+			case KEYD_RSHIFT:
 				//force whole refresh
 				keyboard_visible_last = -1;
 				key_in_shift = key_in_shift ? 0 : 1;
 				break;
-			case KEY_CAPSLOCK:
+			case KEYD_CAPSLOCK:
 				//force whole refresh
 				keyboard_visible_last = -1;
 				key_in_caps = key_in_caps ? 0 : 1;
@@ -498,10 +498,10 @@ void keyboard_draw_region_sub(sregion_t *region, int index, u16 cc) {
 		if (region == key_touching) {
 			c = keyboard_bg_sub;
 		}
-		else if ((region->key == KEY_CAPSLOCK && key_in_caps) || (region->key == KEY_RSHIFT && key_in_shift)) {
+		else if ((region->key == KEYD_CAPSLOCK && key_in_caps) || (region->key == KEYD_RSHIFT && key_in_shift)) {
 			c = 11 * 16;
 		}
-		else if ((region->key == KEY_CAPSLOCK && !key_in_caps) || (region->key == KEY_RSHIFT && !key_in_shift)) {
+		else if ((region->key == KEYD_CAPSLOCK && !key_in_caps) || (region->key == KEYD_RSHIFT && !key_in_shift)) {
 			c = cc;
 		}
 		else {
@@ -721,10 +721,10 @@ void keyboard_draw_region(sregion_t *region, int index, u16 c) {
 	}
 	else if (region->type == 1)
 	{
-		if ((region->key == KEY_CAPSLOCK && key_in_caps) || (region->key == KEY_RSHIFT && key_in_shift)) {
+		if ((region->key == KEYD_CAPSLOCK && key_in_caps) || (region->key == KEYD_RSHIFT && key_in_shift)) {
 			c = keyboard_bg;
 		}
-		else if ((region->key == KEY_CAPSLOCK && !key_in_caps) || (region->key == KEY_RSHIFT && !key_in_shift)) {
+		else if ((region->key == KEYD_CAPSLOCK && !key_in_caps) || (region->key == KEYD_RSHIFT && !key_in_shift)) {
 			c = keyboard_fg;
 		}
 		ch = region->text;

@@ -135,6 +135,8 @@ int             autorun = false;      // always running?          // phares
 int             totalleveltimes;      // CPhipps - total time for all completed levels
 int		longtics;
 
+boolean automapmode_restart = false;
+
 //
 // controls (have defaults)
 //
@@ -649,6 +651,10 @@ static void G_DoLoadLevel (void)
   // killough 5/13/98: in case netdemo has consoleplayer other than green
   ST_Start();
   HU_Start();
+  if (automapmode_restart) {
+	  automapmode_restart |= am_active;
+	  AM_Start();
+  }
 }
 
 
@@ -1290,8 +1296,13 @@ void G_DoCompleted (void)
     if (playeringame[i])
       G_PlayerFinishLevel(i);        // take away cards and stuff
 
-  if (automapmode & am_active)
-    AM_Stop();
+  if (automapmode & am_active) {
+	  AM_Stop();
+	  automapmode_restart = true;
+  }
+  else {
+	  automapmode_restart = false;
+  }
 
   if (gamemode != commercial) // kilough 2/7/98
     switch(gamemap)

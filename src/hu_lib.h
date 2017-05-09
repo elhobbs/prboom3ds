@@ -41,7 +41,7 @@
 /* background and foreground screen numbers
  * different from other modules. */
 #define BG      1
-#define FG      0
+#define FG ((viewheight != SCREENHEIGHT) ? 0 : 5)
 
 /* font stuff
  * #define HU_CHARERASE    KEYD_BACKSPACE / not used               / phares

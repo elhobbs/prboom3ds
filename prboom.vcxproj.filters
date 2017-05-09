@@ -542,6 +542,9 @@
     <ClInclude Include="arm11\include\Mixer_dsp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="arm11\include\keyboard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="src\r_drawcolpipeline.inl">

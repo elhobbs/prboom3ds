@@ -327,7 +327,7 @@ default_t defaults[] =
    def_bool,ss_none}, // enables translucency
   {"tran_filter_pct",{&tran_filter_pct},{66},0,100,         // killough 2/21/98
    def_int,ss_none}, // set percentage of foreground/background translucency mix
-  {"screenblocks",{&screenblocks},{10},3,11,  // killough 2/21/98: default to 10
+  {"screenblocks",{&screenblocks},{11},3,11,  // killough 2/21/98: default to 10
    def_int,ss_none},
   {"usegamma",{&usegamma},{3},0,4, //jff 3/6/98 fix erroneous upper limit in range
    def_int,ss_none}, // gamma correction level // killough 1/18/98

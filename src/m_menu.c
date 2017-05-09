@@ -3885,6 +3885,14 @@ int M_GetKeyString(int c,int offset)
 	  case KEYD_CPAD_DOWN:		s = "CPD"; break;
 	  case KEYD_ZL:				s = "ZL"; break;
 	  case KEYD_ZR:				s = "ZR"; break;
+	  case KEYD_AUX1:			s = "AUX1"; break;
+	  case KEYD_AUX2:			s = "AUX2"; break;
+	  case KEYD_AUX3:			s = "AUX3"; break;
+	  case KEYD_AUX4:			s = "AUX4"; break;
+	  case KEYD_AUX5:			s = "AUX5"; break;
+	  case KEYD_AUX6:			s = "AUX6"; break;
+	  case KEYD_AUX7:			s = "AUX7"; break;
+	  case KEYD_AUX8:			s = "AUX8"; break;
 	  default:              s = "JUNK"; break;
       }
 

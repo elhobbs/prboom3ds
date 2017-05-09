@@ -147,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="arm11\include\font8x8_basic.h" />
+    <ClInclude Include="arm11\include\keyboard.h" />
     <ClInclude Include="arm11\include\Mixer_dsp.h" />
     <ClInclude Include="arm11\source\dbopl.h" />
     <ClInclude Include="arm11\source\keyboard.h" />

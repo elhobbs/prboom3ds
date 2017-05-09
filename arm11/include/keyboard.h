@@ -1,5 +1,6 @@
 #pragma once
 
+/*
 #define	KEY_AUX1			207
 #define	KEY_AUX2			208
 #define	KEY_AUX3			209
@@ -55,7 +56,7 @@
 #define KEY_EIGHT			0x38
 #define KEY_NINE			0x39
 #define KEY_ZERO			0x30
-#define KEY_BACKSLASH		0x5C
+#define KEY_BACKSLASH		0x5C */
 
 typedef struct {
 	int x, y, type, dx, dy, key;

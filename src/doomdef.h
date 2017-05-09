@@ -323,6 +323,15 @@ typedef enum {
 #define KEYD_ZL  0x208
 #define KEYD_ZR  0x209
 
+#define	KEYD_AUX1			0x20A
+#define	KEYD_AUX2			0x20B
+#define	KEYD_AUX3			0x20C
+#define	KEYD_AUX4			0x20D
+#define	KEYD_AUX5			0x20E
+#define	KEYD_AUX6			0x20F
+#define	KEYD_AUX7			0x210
+#define	KEYD_AUX8			0x211
+
 // phares 4/19/98:
 // Defines Setup Screen groups that config variables appear in.
 // Used when resetting the defaults for every item in a Setup group.
