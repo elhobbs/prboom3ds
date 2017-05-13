@@ -23,8 +23,8 @@ static char key_buttons[] = "1234567890";
 
 
 sregion_t key_button_array[] = {
-	{ 32, 0, 0, 0, 0, 0, key_buttons, key_buttons },
-	{ 270, 0, 6, 0, 0, 0x200, 0 },
+	{ 32, 16, 0, 0, 0, 0, key_buttons, key_buttons },
+	{ 270, 16, 6, 0, 0, 0x200, 0 },
 	{ -30, 32 * 1, 7, 0, 0, KEYD_AUX1, KEYD_AUX1 },
 	{ -30, 32 * 2, 7, 0, 0, KEYD_AUX2, KEYD_AUX2 },
 	{ -30, 32 * 3, 7, 0, 0, KEYD_AUX3, KEYD_AUX3 },

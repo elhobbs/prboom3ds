@@ -301,10 +301,10 @@ drawagain:
 	if (viewheight == SCREENHEIGHT) {
 		SCREENWIDTH = 320;
 	}
-	ST_Drawer(true,
+	ST_Drawer(!hud_displayed,
         //((viewheight != SCREENHEIGHT)
         // || ((automapmode & am_active) && !(automapmode & am_overlay))),
-        redrawborderstuff,
+        redrawborderstuff && !hud_displayed,
         (menuactive == mnact_full));
 
 	HU_Drawer();

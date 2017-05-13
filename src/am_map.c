@@ -1563,6 +1563,8 @@ inline static void AM_drawCrosshair(int color)
   V_DrawLine(&line, color);
 }
 
+extern boolean automapontop;
+
 //
 // AM_Drawer()
 //
@@ -1575,7 +1577,7 @@ void AM_Drawer (void)
   // CPhipps - all automap modes put into one enum
   if (!(automapmode & am_active)) return;
 
-  if (!(automapmode & am_overlay)) // cph - If not overlay mode, clear background for the automap
+  if ((!(automapmode & am_overlay)) || (!automapontop)) // cph - If not overlay mode, clear background for the automap
     V_FillRect(FB, f_x, f_y, f_w, f_h, (byte)mapcolor_back); //jff 1/5/98 background default color
   if (automapmode & am_grid)
     AM_drawGrid(mapcolor_grid);      //jff 1/7/98 grid default color

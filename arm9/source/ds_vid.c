@@ -452,11 +452,38 @@ void I_StartTic(void) {
 	}
 }
 
+#define	automapactive ((automapmode & am_active) != 0)
+
 //
 // I_StartFrame
 //
 void I_StartFrame(void)
 {
+	extern int      viewheight;
+	extern int keyboard_visible_last;
+	extern int hud_displayed;
+	byte *subscreen = screens[5].data;
+	static viewheight_last = 0;
+	static hud_displayed_last = 0;
+
+#define HU_HEIGHT 57
+#define HU_TOP (240 - HU_HEIGHT - 1)
+#define HU_ROWS (240 - HU_TOP)
+
+	//if the automap is not active then erase the top few lines
+	if (!automapactive) {
+		memset(subscreen, 0, screens[5].width * 16);
+	}
+
+	//erase the bottom if the viewsize changes or the hud is active
+	if (hud_displayed || 
+		hud_displayed_last != hud_displayed ||
+		viewheight_last > viewheight) {
+		memset(subscreen + (screens[5].width * HU_TOP), 0, screens[5].width * HU_ROWS);
+	}
+
+	viewheight_last = viewheight;
+	hud_displayed_last = hud_displayed;
 }
 
 

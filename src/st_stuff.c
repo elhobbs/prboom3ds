@@ -827,16 +827,20 @@ static void ST_drawWidgets(boolean refresh)
 
 void ST_Drawer(boolean statusbaron, boolean refresh, boolean fullmenu)
 {
+	extern int hud_displayed;
 	static int FG_last = 0;
-  /* cph - let status bar on be controlled
+	static hud_displayed_last = 0;
+	/* cph - let status bar on be controlled
    * completely by the call from D_Display
    * proff - really do it
    */
   st_firsttime = st_firsttime || refresh || fullmenu;
-  if (FG_last != FG) {
+  if (FG_last != FG ||
+	  hud_displayed_last != hud_displayed) {
 	  FG_last = FG;
 	  st_firsttime = true;
 	  fullmenu = false;
+	  hud_displayed_last = hud_displayed;
   }
 
   ST_doPaletteStuff();  // Do red-/gold-shifts from damage/items

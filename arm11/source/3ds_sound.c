@@ -91,7 +91,7 @@ void S_ChangeMusic(int music_id, int looping) {
 		sprintf(namebuf, "d_%s", music->name);
 		music->lumpnum = W_GetNumForName(namebuf);
 	}
-	printf("mus: d_%s\n", music->name);
+	//printf("mus: d_%s\n", music->name);
 	music->data = W_CacheLumpNum(music->lumpnum);
 	mus_play_music(music->data);
 

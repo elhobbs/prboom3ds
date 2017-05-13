@@ -867,7 +867,7 @@ void M_SaveDefaults (void)
   f = fopen (defaultfile, "w");
   if (!f) {
 	  printf("failed to save defaults to:\n%s\n", defaultfile);
-	  //svcSleepThread(5000000000LL);
+	  svcSleepThread(5000000000LL);
 	  return; // can't write the file, but don't complain
   }
 
@@ -960,14 +960,14 @@ void M_LoadDefaults (void)
   else {
     const char* exedir = I_DoomExeDir();
     /* get config file from same directory as executable */
-#if 1
+#if 0
 	int len = doom_snprintf(NULL, 0, BOOM_CFG);
 	defaultfile = malloc(len+1);
 	doom_snprintf(defaultfile, len+1, BOOM_CFG);
 #else
-    int len = doom_snprintf(NULL, 0, "%s/" BOOM_CFG, exedir);
+    int len = doom_snprintf(NULL, 0, "%s" BOOM_CFG, exedir);
     defaultfile = malloc(len+1);
-    doom_snprintf(defaultfile, len+1, "%s/" BOOM_CFG, exedir);
+    doom_snprintf(defaultfile, len+1, "%s" BOOM_CFG, exedir);
 #endif
   }
 
