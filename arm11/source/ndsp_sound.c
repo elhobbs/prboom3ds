@@ -825,7 +825,7 @@ void MIX_Update_() {
 	}
 
 	// mix ahead of current position
-	endtime = soundtime + 0.1f * snd_speed;
+	endtime = soundtime + 0.05f * snd_speed;
 	samps = snd_samples >> (snd_channels - 1);
 	if (endtime - soundtime > samps)
 		endtime = soundtime + samps;

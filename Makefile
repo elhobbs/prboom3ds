@@ -42,6 +42,7 @@ CFLAGS2	:=	-g -Wall -O2 -mword-relocations -save-temps \
 CFLAGS	:=	-g -Wall -mword-relocations \
 			-ffunction-sections \
 			-fdata-sections \
+			-fno-short-enums \
 			$(ARCH) \
 			-O2
 
