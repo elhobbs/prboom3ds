@@ -895,6 +895,7 @@ void mus_play_timer(void) {
 			{					// end of song
 								//if (mus->loopcount &&
 								//	(mus->loopcount == -1U || --mus->loopcount)) // -1: loop forever
+				OPLstopMusic(mus);
 				MUSdata = score;
 				//else
 				//	mus->state = ST_STOPPED;
