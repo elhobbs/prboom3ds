@@ -188,7 +188,8 @@ typedef enum
   SPR_DOGS, /* killough 7/19/98: Marine's best friend :) */
 #endif
 
-  NUMSPRITES  /* counter of how many there are */
+  NUMSPRITES,  /* counter of how many there are */
+	  SPR_max = 0xffffffffL
 
 } spritenum_t;
 
@@ -1246,7 +1247,9 @@ typedef enum
 
   S_MUSHROOM,  /* killough 10/98: mushroom explosion effect */
 
-  NUMSTATES  /* Counter of how many there are */
+  NUMSTATES,  /* Counter of how many there are */
+
+	  S_max = 0xffffffffL
 
 } statenum_t;
 
@@ -1434,7 +1437,8 @@ typedef enum {
   MT_STEALTHSHOTGUY,
   MT_STEALTHZOMBIE,
 
-  NUMMOBJTYPES  // Counter of how many there are
+  NUMMOBJTYPES,  // Counter of how many there are
+	  MT_max = 0xffffffffL
 } mobjtype_t;
 
 /********************************************************************

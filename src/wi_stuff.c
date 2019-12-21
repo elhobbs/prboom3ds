@@ -116,7 +116,8 @@ typedef enum
 {
   ANIM_ALWAYS,   // determined by patch entry
   ANIM_RANDOM,   // occasional
-  ANIM_LEVEL     // continuous
+  ANIM_LEVEL,     // continuous
+  anim_max = 0xffffffffL
 } animenum_t;
 
 typedef struct

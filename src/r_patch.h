@@ -40,6 +40,7 @@ typedef enum {
   RDRAW_EDGESLOPE_BOT_DOWN = (1<<3),
   RDRAW_EDGESLOPE_TOP_MASK = 0x3,
   RDRAW_EDGESLOPE_BOT_MASK = 0xc,  
+  edgeslope_max = 0xffffffffL
 } edgeslope_t;
 
 typedef struct {

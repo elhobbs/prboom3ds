@@ -205,6 +205,7 @@ typedef enum
   GunMany,
   PushOnce,
   PushMany,
+  triggertype_max = 0xffffffffL
 } triggertype_e;
 
 // define names for the Speed field of the general linedefs
@@ -215,6 +216,7 @@ typedef enum
   SpeedNormal,
   SpeedFast,
   SpeedTurbo,
+  motionspeed_max = 0xffffffffL
 } motionspeed_e;
 
 // define names for the Target field of the general floor
@@ -229,6 +231,7 @@ typedef enum
   FbyST,
   Fby24,
   Fby32,
+  floortarget_max = 0xffffffffL
 } floortarget_e;
 
 // define names for the Changer Type field of the general floor
@@ -239,6 +242,7 @@ typedef enum
   FChgZero,
   FChgTxt,
   FChgTyp,
+  floorchange_max = 0xffffffffL
 } floorchange_e;
 
 // define names for the Change Model field of the general floor
@@ -247,6 +251,7 @@ typedef enum
 {
   FTriggerModel,
   FNumericModel,
+  floormmodel_max = 0xffffffffL
 } floormodel_t;
 
 // define names for the Target field of the general ceiling
@@ -261,6 +266,7 @@ typedef enum
   CbyST,
   Cby24,
   Cby32,
+  ceilingtarget_max = 0xffffffffL
 } ceilingtarget_e;
 
 // define names for the Changer Type field of the general ceiling
@@ -271,6 +277,7 @@ typedef enum
   CChgZero,
   CChgTxt,
   CChgTyp,
+  ceilingchange_max = 0xffffffffL
 } ceilingchange_e;
 
 // define names for the Change Model field of the general ceiling
@@ -279,6 +286,7 @@ typedef enum
 {
   CTriggerModel,
   CNumericModel,
+  ceilingmodel_max = 0xffffffffL
 } ceilingmodel_t;
 
 // define names for the Target field of the general lift
@@ -289,6 +297,7 @@ typedef enum
   F2NnF,
   F2LnC,
   LnF2HnF,
+  lifttarget_max = 0xffffffffL
 } lifttarget_e;
 
 // define names for the door Kind field of the general ceiling
@@ -299,6 +308,7 @@ typedef enum
   ODoor,
   CdODoor,
   CDoor,
+  doorkind_max = 0xffffffffL
 } doorkind_e;
 
 // define names for the locked door Kind field of the general ceiling
@@ -313,6 +323,7 @@ typedef enum
   BSkull,
   YSkull,
   AllKeys,
+  keykind_max = 0xffffffffL
 } keykind_e;
 
 //////////////////////////////////////////////////////////////////
@@ -328,6 +339,7 @@ typedef enum
   floor_special,
   ceiling_special,
   lighting_special,
+  special_max = 0xffffffffL
 } special_e;
 
 //jff 3/15/98 pure texture/type change for better generalized support
@@ -335,6 +347,7 @@ typedef enum
 {
   trigChangeOnly,
   numChangeOnly,
+  change_max = 0xffffffffL
 } change_e;
 
 // p_plats
@@ -344,7 +357,8 @@ typedef enum
   up,
   down,
   waiting,
-  in_stasis
+  in_stasis,
+  plat_max = 0xffffffffL
 } plat_e;
 
 typedef enum
@@ -357,7 +371,7 @@ typedef enum
   genLift,      //jff added to support generalized Plat types
   genPerpetual,
   toggleUpDn,   //jff 3/14/98 added to support instant toggle type
-
+  plattype_max = 0xffffffffL
 } plattype_e;
 
 // p_doors
@@ -382,6 +396,7 @@ typedef enum
   genBlazeClose,
   genCdO,
   genBlazeCdO,
+  vldoor_max = 0xffffffffL
 } vldoor_e;
 
 // p_ceilng
@@ -406,6 +421,7 @@ typedef enum
   //jff 02/05/98 add types for generalized ceiling mover
   genCrusher,
   genSilentCrusher,
+  ceiling_max = 0xffffffffL
 
 } ceiling_e;
 
@@ -466,13 +482,14 @@ typedef enum
   //new types for stair builders
   buildStair,
   genBuildStair,
+  floor_max = 0xffffffffL
 } floor_e;
 
 typedef enum
 {
   build8, // slowly build by 8
-  turbo16 // quickly build by 16
-
+  turbo16, // quickly build by 16
+  stair_max = 0xffffffffL
 } stair_e;
 
 typedef enum
@@ -480,6 +497,7 @@ typedef enum
   elevateUp,
   elevateDown,
   elevateCurrent,
+  elevator_max = 0xffffffffL
 } elevator_e;
 
 //////////////////////////////////////////////////////////////////
@@ -493,7 +511,8 @@ typedef enum
 {
     top,
     middle,
-    bottom
+    bottom,
+	bwhere_max = 0xffffffffL
 
 } bwhere_e;
 
@@ -502,7 +521,8 @@ typedef enum
 {
   ok,
   crushed,
-  pastdest
+  pastdest,
+  result_max = 0xffffffffL
 } result_e;
 
 //////////////////////////////////////////////////////////////////

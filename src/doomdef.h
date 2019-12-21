@@ -69,7 +69,8 @@ typedef enum {
   registered,   // DOOM 1 registered, E3, M27
   commercial,   // DOOM 2 retail, E1 M34  (DOOM 2 german edition not handled)
   retail,       // DOOM 1 retail, E4, M36
-  indetermined  // Well, no IWAD found.
+  indetermined,  // Well, no IWAD found.
+  gamemode_max = 0xffffffffL
 } GameMode_t;
 
 // Mission packs - might be useful for TC stuff?
@@ -78,7 +79,8 @@ typedef enum {
   doom2,        // DOOM 2
   pack_tnt,     // TNT mission pack
   pack_plut,    // Plutonia pack
-  none
+  none,
+  game_mission_max = 0xffffffffL
 } GameMission_t;
 
 // Identify language to use, software localization.
@@ -86,7 +88,8 @@ typedef enum {
   english,
   french,
   german,
-  unknown
+  unknown,
+  language_max = 0xffffffffL
 } Language_t;
 
 //
@@ -150,7 +153,8 @@ typedef enum {
   GS_LEVEL,
   GS_INTERMISSION,
   GS_FINALE,
-  GS_DEMOSCREEN
+  GS_DEMOSCREEN,
+  GS_max = 0xffffffffL
 } gamestate_t;
 
 //
@@ -178,7 +182,8 @@ typedef enum {
   sk_easy,
   sk_medium,
   sk_hard,
-  sk_nightmare
+  sk_nightmare,
+  sk_max = 0xffffffffL
 } skill_t;
 
 //
@@ -192,7 +197,8 @@ typedef enum {
   it_blueskull,
   it_yellowskull,
   it_redskull,
-  NUMCARDS
+  NUMCARDS,
+  card_max = 0xffffffffL
 } card_t;
 
 // The defined weapons, including a marker
@@ -209,7 +215,8 @@ typedef enum {
   wp_supershotgun,
 
   NUMWEAPONS,
-  wp_nochange              // No pending weapon change.
+  wp_nochange,              // No pending weapon change.
+  wp_max = 0xffffffffL
 } weapontype_t;
 
 // Ammunition types defined.
@@ -219,7 +226,8 @@ typedef enum {
   am_cell,    // Plasma rifle, BFG.
   am_misl,    // Missile launcher.
   NUMAMMO,
-  am_noammo   // Unlimited for chainsaw / fist.
+  am_noammo,   // Unlimited for chainsaw / fist.
+  ammotype_max = 0xffffffffL
 } ammotype_t;
 
 // Power up artifacts.
@@ -230,7 +238,8 @@ typedef enum {
   pw_ironfeet,
   pw_allmap,
   pw_infrared,
-  NUMPOWERS
+  NUMPOWERS,
+  pw_max = 0xffffffffL
 } powertype_t;
 
 // Power up durations (how many seconds till expiration).
@@ -238,7 +247,8 @@ typedef enum {
   INVULNTICS  = (30*TICRATE),
   INVISTICS   = (60*TICRATE),
   INFRATICS   = (120*TICRATE),
-  IRONTICS    = (60*TICRATE)
+  IRONTICS    = (60*TICRATE),
+  powerduration_max = 0xffffffffL
 } powerduration_t;
 
 // DOOM keyboard definition.
@@ -347,7 +357,8 @@ typedef enum {
   ss_chat,
   ss_gen,       /* killough 10/98 */
   ss_comp,      /* killough 10/98 */
-  ss_max
+  ss_max,
+  ss_max_all = 0xffffffffL
 } ss_types;
 
 // phares 3/20/98:

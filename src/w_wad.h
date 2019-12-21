@@ -71,7 +71,8 @@ typedef enum {
   source_auto_load, // lump auto-loaded by config file
   source_pwad,      // pwad file load
   source_lmp,       // lmp file load
-  source_net        // CPhipps
+  source_net,        // CPhipps
+  source_max = 0xffffffffL
 } wad_source_t;
 
 // CPhipps - changed wad init

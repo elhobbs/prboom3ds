@@ -82,7 +82,8 @@ typedef enum
    COL_TRANS,
    COL_FLEXTRANS,
    COL_FUZZ,
-   COL_FLEXADD
+   COL_FLEXADD,
+   columntype_max = 0xffffffffL
 } columntype_e;
 
 static int    temp_x = 0;

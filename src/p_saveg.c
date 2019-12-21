@@ -252,7 +252,8 @@ void P_UnArchiveWorld (void)
 
 typedef enum {
   tc_end,
-  tc_mobj
+  tc_mobj,
+  tc_max = 0xffffffffL
 } thinkerclass_t;
 
 // phares 9/13/98: Moved this code outside of P_ArchiveThinkers so the

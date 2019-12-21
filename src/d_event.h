@@ -49,7 +49,8 @@ typedef enum
   ev_keydown,
   ev_keyup,
   ev_mouse,
-  ev_joystick
+  ev_joystick,
+  ev_max = 0xffffffffL
 } evtype_t;
 
 // Event structure.
@@ -73,6 +74,7 @@ typedef enum
   ga_completed,
   ga_victory,
   ga_worlddone,
+  ga_max = 0xffffffffL
 } gameaction_t;
 
 
@@ -112,7 +114,7 @@ typedef enum
   // Savegame slot numbers occupy the second byte of buttons.
   BTS_SAVEMASK    = (4+8+16),
   BTS_SAVESHIFT   = 2,
-
+  TBS_MAX = 0xffffffffL
 } buttoncode_t;
 
 

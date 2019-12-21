@@ -472,6 +472,7 @@ subsector_t *R_PointInSubsector(fixed_t x, fixed_t y)
 //
 // R_SetupFrame
 //
+int viewangle_3ds = 0;
 
 static void R_SetupFrame (player_t *player)
 {
@@ -654,25 +655,36 @@ void R_RenderPlayerView(player_t* player)
 	int x = viewx;
 	int y = viewy;
 	fixed_t vsin, vcos;
-	float slideamt = 0.0f - *slider;
+	float slideamt = *slider;
 	int sep = (slideamt*5.0f);
-	angle_t ang = (slideamt*ANG5);
+	angle_t ang = 0;
 	void copy_screen(int side);
 
-	R_SetupFrame(player);
+	if (*slider > 0.0f/* && !MenuActive*/) {
+		ang = (slideamt * ANG90 / 18.0f);
+		if (renderframe) {
+			ang = -ang;
+		}
 
-	if (renderframe) {
+		//viewangleoffset = ang;
+		viewangle_3ds = ang;
+	}
+	R_SetupFrame(player);
+	
+
+	/*if (renderframe) {
 		ang = -ang;
 		sep = -sep;
-	}
+	}*/
 
 	vsin = finesine[(viewangle - ANG90) >> ANGLETOFINESHIFT];
 	vcos = finecosine[(viewangle - ANG90) >> ANGLETOFINESHIFT];
 
-	//viewangle += ang;
+	/*//viewangle += ang;
 	viewx -= sep * vcos;
 	viewy -= sep * vsin;
-	viewangleoffset = -sep;
+	viewangleoffset = -sep;*/
+
 	R_RenderPlayerView_(player);
 
 	validcount++;

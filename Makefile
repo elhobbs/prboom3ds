@@ -19,9 +19,9 @@ include $(DEVKITARM)/3ds_rules
 #---------------------------------------------------------------------------------
 export TARGET		:=	$(shell basename $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	src arm9/source arm11/source khax
+SOURCES		:=	src arm9/source arm11/source helix/fixpt helix/fixpt/real helix/fixpt/real/arm khax
 DATA		:=	dat
-INCLUDES	:=	include src arm9/include arm11/include khax
+INCLUDES	:=	include src arm9/include arm11/include helix/fixpt/pub khax
 APP_TITLE	:=	prboom
 APP_DESCRIPTION	:= prboom for the 3ds
 APP_AUTHOR	:= elhobbs
@@ -39,14 +39,19 @@ CFLAGS2	:=	-g -Wall -O2 -mword-relocations -save-temps \
 			-fomit-frame-pointer -ffast-math \
 			$(ARCH)
 
-CFLAGS	:=	-g -Wall -mword-relocations \
+CFLAGS	:=	-g -Wall -mword-relocations -flto \
 			-ffunction-sections \
 			-fdata-sections \
-			-fno-short-enums \
 			$(ARCH) \
 			-O2
 
-CFLAGS	+=	$(INCLUDE) -DARM11 -D_3DS -DHAVE_CONFIG_H
+CFLAGS3	:=	-g -Wall -mword-relocations \
+			-ffunction-sections \
+			-fdata-sections \
+			$(ARCH) \
+			-O0
+
+CFLAGS	+=	$(INCLUDE) -DARM11 -DARM -D_3DS -DHAVE_CONFIG_H
 
 CXXFLAGS	:= $(CFLAGS) -fno-rtti -fno-exceptions -std=gnu++11
 

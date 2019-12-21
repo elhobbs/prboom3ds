@@ -48,7 +48,8 @@ typedef enum
   INTERP_Vertex,
   INTERP_WallPanning,
   INTERP_FloorPanning,
-  INTERP_CeilingPanning
+  INTERP_CeilingPanning,
+  interp_max = 0xffffffffL
 } interpolation_type_e;
 
 typedef struct
@@ -80,6 +81,8 @@ static boolean NoInterpolateView;
 static boolean didInterp;
 boolean WasRenderedInTryRunTics;
 
+extern int viewangle_3ds;
+
 void R_InterpolateView (player_t *player, fixed_t frac)
 {
   if (movement_smooth)
@@ -99,13 +102,14 @@ void R_InterpolateView (player_t *player, fixed_t frac)
     viewz = original_view_vars.viewz + FixedMul (frac, player->viewz - original_view_vars.viewz);
 
     viewangle = original_view_vars.viewangle + FixedMul (frac, R_SmoothPlaying_Get(player->mo->angle) + viewangleoffset - original_view_vars.viewangle);
+	viewangle += viewangle_3ds;
   }
   else
   {
     viewx = player->mo->x;
     viewy = player->mo->y;
     viewz = player->viewz;
-    viewangle = R_SmoothPlaying_Get(player->mo->angle);
+    viewangle = R_SmoothPlaying_Get(player->mo->angle) + viewangle_3ds;
   }
 }
 

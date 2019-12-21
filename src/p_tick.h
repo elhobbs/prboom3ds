@@ -64,6 +64,7 @@ typedef enum {
   th_enemies,
   NUMTHCLASS,
   th_all = NUMTHCLASS, /* For P_NextThinker, indicates "any class" */
+  th_class_max = 0xffffffffL
 } th_class;
 
 extern thinker_t thinkerclasscap[];

@@ -724,7 +724,7 @@ byte* mus_load_music(u8 *data)
 		header->ID[2] != 'S' ||
 		header->ID[3] != 0x1A)
 	{
-		printf("mus_load_music: failed\n");
+		printf("mus_load_music: failed type %c %c %c\n", header->ID[0], header->ID[1], header->ID[2]);
 		return 0;
 	}
 

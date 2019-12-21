@@ -61,7 +61,8 @@ typedef enum {
   DI_SOUTH,
   DI_SOUTHEAST,
   DI_NODIR,
-  NUMDIRS
+  NUMDIRS,
+  DI_max = 0xffffffffL
 } dirtype_t;
 
 static void P_NewChaseDir(mobj_t *actor);

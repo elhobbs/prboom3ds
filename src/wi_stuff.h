@@ -44,7 +44,8 @@ typedef enum
 {
   NoState = -1,
   StatCount,
-  ShowNextLoc
+  ShowNextLoc,
+  stateenum_max = 0xffffffffL
 
 } stateenum_t;
 

@@ -73,7 +73,8 @@ void ST_Init(void);
 typedef enum
 {
   AutomapState,
-  FirstPersonState
+  FirstPersonState,
+  st_statenum_max = 0xffffffffL
 } st_stateenum_t;
 
 // States for the chat code.
@@ -81,7 +82,8 @@ typedef enum
 {
   StartChatState,
   WaitDestState,
-  GetChatState
+  GetChatState,
+  st_chatstateenum_max = 0xffffffffL
 } st_chatstateenum_t;
 
 // killough 5/2/98: moved from m_misc.c:

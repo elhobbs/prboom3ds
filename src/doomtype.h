@@ -139,6 +139,7 @@ typedef enum {
   /* Aliases follow */
   boom_compatibility = boom_201_compatibility, /* Alias used by G_Compatibility */
   best_compatibility = prboom_6_compatibility,
+  complevel_max = 0xffffffffL
 } complevel_t;
 
 /* cph - from v_video.h, needed by gl_struct.h */

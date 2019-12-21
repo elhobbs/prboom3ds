@@ -60,8 +60,8 @@
 typedef enum
 {
     CMD_SEND    = 1,
-    CMD_GET     = 2
-
+    CMD_GET     = 2,
+	CMD_max = 0xffffffffL
 } command_t;
 
 
@@ -128,6 +128,7 @@ typedef enum {
   // Leave space, so low values corresponding to normal netgame setup packets can be ignored
   nm_plcolour = 3,
   nm_savegamename = 4,
+  nm_max = 0xffffffffL
 } netmisctype_t;
 
 typedef struct

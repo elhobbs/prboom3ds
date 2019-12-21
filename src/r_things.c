@@ -684,6 +684,8 @@ void R_AddSprites(subsector_t* subsec, int lightlevel)
 //
 // R_DrawPSprite
 //
+extern int viewangle_3ds;
+extern int renderframe;
 
 static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
 {
@@ -696,6 +698,7 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
   vissprite_t   avis;
   int           width;
   fixed_t       topoffset;
+  int tempangle;
 
   avis.isplayersprite = true;
 
@@ -726,11 +729,19 @@ static void R_DrawPSprite (pspdef_t *psp, int lightlevel)
     tx = psp->sx-160*FRACUNIT;
 
     tx -= patch->leftoffset<<FRACBITS;
-	x1 = (centerxfrac + FixedMul(tx, pspritescale)) >> FRACBITS;
+	if (viewangle_3ds)
+	{
+		tempangle = ((centerxfrac / 1024)*(viewangle_3ds >> ANGLETOFINESHIFT));
+	}
+	else
+	{
+		tempangle = 0;
+	}
+	x1 = (centerxfrac + FixedMul(tx, pspritescale) + tempangle) >> FRACBITS;
 	x1 -= viewangleoffset;
 
     tx += patch->width<<FRACBITS;
-	x2 = ((centerxfrac + FixedMul(tx, pspritescale)) >> FRACBITS) - 1;
+	x2 = ((centerxfrac + FixedMul(tx, pspritescale) + tempangle) >> FRACBITS) - 1;
 	x2 -= viewangleoffset;
 
     width = patch->width;

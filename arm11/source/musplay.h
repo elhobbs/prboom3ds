@@ -166,7 +166,8 @@ typedef unsigned char u8;
 typedef enum {
 	MUS_IDLE,
 	MUS_PLAYING,
-	MUS_EXIT
+	MUS_EXIT,
+	MUS_max = 0xffffffffL
 } MUS_STATE;
 
 void mus_init();

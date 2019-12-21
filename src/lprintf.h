@@ -45,6 +45,7 @@ typedef enum                /* Logical output levels */
   LO_FATAL=16,
   LO_DEBUG=32,
   LO_ALWAYS=64,
+  LO_max = 0xffffffffL
 } OutputLevels;
 
 #ifndef __GNUC__

@@ -71,7 +71,8 @@ typedef enum
 {
   ps_weapon,
   ps_flash,
-  NUMPSPRITES
+  NUMPSPRITES,
+  ps_max = 0xffffffffL
 } psprnum_t;
 
 typedef struct

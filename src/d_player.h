@@ -67,7 +67,8 @@ typedef enum
   // Dead on the ground, view follows killer.
   PST_DEAD,
   // Ready to restart/respawn???
-  PST_REBORN
+  PST_REBORN,
+  PST_max = 0xffffffffL
 
 } playerstate_t;
 
@@ -82,7 +83,8 @@ typedef enum
   // No damage, no health loss.
   CF_GODMODE          = 2,
   // Not really a cheat, just a debug aid.
-  CF_NOMOMENTUM       = 4
+  CF_NOMOMENTUM       = 4,
+  CF_max = 0xffffffffL
 
 } cheat_t;
 

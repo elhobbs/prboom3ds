@@ -125,7 +125,8 @@ typedef enum {
   pr_defect,                  // #62  // Start new entries -- add new entries below
 
   // End of new entries
-  NUMPRCLASS               // MUST be last item in list
+  NUMPRCLASS,               // MUST be last item in list
+  pr_max = 0xffffffffL
 } pr_class_t;
 
 // The random number generator's state.

@@ -172,7 +172,8 @@ typedef enum {
   mus_read_m,
   mus_dm2ttl,
   mus_dm2int,
-  NUMMUSIC
+  NUMMUSIC,
+  mus_max = 0xffffffffL
 } musicenum_t;
 
 //
@@ -299,7 +300,8 @@ typedef enum {
   sfx_dgpain,
 #endif
 
-  NUMSFX
+  NUMSFX,
+	  sfx_max = 0xffffffffL
 } sfxenum_t;
 
 #endif

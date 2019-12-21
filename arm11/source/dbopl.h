@@ -74,6 +74,7 @@ typedef enum {
   sm6Start,
   sm2Percussion,
   sm3Percussion,
+  sm3_max = 0xffffffffL
 } SynthMode;
 
 //Shifts for the values contained in chandata variable
@@ -96,6 +97,7 @@ typedef enum {
         SUSTAIN,
         DECAY,
         ATTACK,
+		operstatemax_max = 0xffffffffL
 } OperatorState;
 
 struct _Operator {

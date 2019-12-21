@@ -171,7 +171,8 @@ typedef enum
   ST_HORIZONTAL,
   ST_VERTICAL,
   ST_POSITIVE,
-  ST_NEGATIVE
+  ST_NEGATIVE,
+  slopetype_max = 0xffffffffL
 } slopetype_t;
 
 typedef struct line_s
