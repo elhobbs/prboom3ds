@@ -662,6 +662,53 @@ static R_DrawColumn_f drawcolumnfuncs[VID_MODEMAX][RDRAW_FILTER_MAXFILTERS][RDRA
        R_DrawFuzzColumn32_RoundedUV_LinearZ,},
     },
   },
+  {
+    {
+      {NULL, NULL, NULL, NULL,},
+      {R_DrawColumn8_PointUV,
+       R_DrawTLColumn8_PointUV,
+       R_DrawTranslatedColumn8_PointUV,
+       R_DrawFuzzColumn8_PointUV,},
+      {R_DrawColumn8_LinearUV,
+       R_DrawTLColumn8_LinearUV,
+       R_DrawTranslatedColumn8_LinearUV,
+       R_DrawFuzzColumn8_LinearUV,},
+      {R_DrawColumn8_RoundedUV,
+       R_DrawTLColumn8_RoundedUV,
+       R_DrawTranslatedColumn8_RoundedUV,
+       R_DrawFuzzColumn8_RoundedUV,},
+    },
+    {
+      {NULL, NULL, NULL, NULL,},
+      {R_DrawColumn8_PointUV_PointZ,
+       R_DrawTLColumn8_PointUV_PointZ,
+       R_DrawTranslatedColumn8_PointUV_PointZ,
+       R_DrawFuzzColumn8_PointUV_PointZ,},
+      {R_DrawColumn8_LinearUV_PointZ,
+       R_DrawTLColumn8_LinearUV_PointZ,
+       R_DrawTranslatedColumn8_LinearUV_PointZ,
+       R_DrawFuzzColumn8_LinearUV_PointZ,},
+      {R_DrawColumn8_RoundedUV_PointZ,
+       R_DrawTLColumn8_RoundedUV_PointZ,
+       R_DrawTranslatedColumn8_RoundedUV_PointZ,
+       R_DrawFuzzColumn8_RoundedUV_PointZ,},
+    },
+    {
+      {NULL, NULL, NULL, NULL,},
+      {R_DrawColumn8_PointUV_LinearZ,
+       R_DrawTLColumn8_PointUV_LinearZ,
+       R_DrawTranslatedColumn8_PointUV_LinearZ,
+       R_DrawFuzzColumn8_PointUV_LinearZ,},
+      {R_DrawColumn8_LinearUV_LinearZ,
+       R_DrawTLColumn8_LinearUV_LinearZ,
+       R_DrawTranslatedColumn8_LinearUV_LinearZ,
+       R_DrawFuzzColumn8_LinearUV_LinearZ,},
+      {R_DrawColumn8_RoundedUV_LinearZ,
+       R_DrawTLColumn8_RoundedUV_LinearZ,
+       R_DrawTranslatedColumn8_RoundedUV_LinearZ,
+       R_DrawFuzzColumn8_RoundedUV_LinearZ,},
+    },
+  },
 };
 
 R_DrawColumn_f R_GetDrawColumnFunc(enum column_pipeline_e type,
@@ -970,6 +1017,32 @@ static R_DrawSpan_f drawspanfuncs[VID_MODEMAX][RDRAW_FILTER_MAXFILTERS][RDRAW_FI
       NULL,
     },
   },
+  {
+    {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+    },
+    {
+      NULL,
+      R_DrawSpan8_PointUV_PointZ,
+      R_DrawSpan8_LinearUV_PointZ,
+      R_DrawSpan8_RoundedUV_PointZ,
+    },
+    {
+      NULL,
+      R_DrawSpan8_PointUV_LinearZ,
+      R_DrawSpan8_LinearUV_LinearZ,
+      R_DrawSpan8_RoundedUV_LinearZ,
+    },
+    {
+      NULL,
+      NULL,
+      NULL,
+      NULL,
+    },
+  },
 };
 
 R_DrawSpan_f R_GetDrawSpanFunc(enum draw_filter_type_e filter,
@@ -1013,7 +1086,7 @@ void R_InitBuffer(int width, int height)
   drawvars.short_pitch = screens[0].short_pitch;
   drawvars.int_pitch = screens[0].int_pitch;
 
-  if (V_GetMode() == VID_MODE8) {
+  if (V_GetMode() == VID_MODE8 || V_GetMode() == VID_MODE8_WIDE) {
     for (i=0; i<FUZZTABLE; i++)
       fuzzoffset[i] = fuzzoffset_org[i]*screens[0].byte_pitch;
   } else if ((V_GetMode() == VID_MODE15) || (V_GetMode() == VID_MODE16)) {

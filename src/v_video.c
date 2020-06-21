@@ -200,6 +200,7 @@ static void FUNC_V_DrawBackground(const char* flatname, int scrn)
   switch (V_GetMode())
   {
   case VID_MODE8:
+  case VID_MODE8_WIDE:
     V_DRAWFLAT(scrn, byte, byte_pitch, GETCOL8);
     break;
   case VID_MODE15:
@@ -278,7 +279,7 @@ static void V_DrawMemPatch(int x, int y, int scrn, const rpatch_t *patch,
   if (!trans)
     flags &= ~VPT_TRANS;
 
-  if (V_GetMode() == VID_MODE8 && !(flags & VPT_STRETCH)) {
+  if ((V_GetMode() == VID_MODE8 || V_GetMode() == VID_MODE8_WIDE) && !(flags & VPT_STRETCH)) {
     int             col;
     byte           *desttop = screens[scrn].data+y*screens[scrn].byte_pitch+x*V_GetPixelDepth();
     unsigned int    w = patch->width;
@@ -812,9 +813,29 @@ void V_InitMode(video_mode_t mode) {
 	  ds_stopGL();
   }
 #endif
+  SCREENWIDTH = 400;
+  SCREENPITCH = 400;
+  SCREENHEIGHT = 240;
 
   switch (mode) {
+    case VID_MODE8_WIDE:
+        SCREENWIDTH = 800;
+        SCREENPITCH = 800;
+        gfxSet3D(false);
+        gfxSetWide(true);
+        lprintf(LO_INFO, "V_InitMode: using Wide 8 bit video mode\n");
+        V_CopyRect = FUNC_V_CopyRect;
+        V_FillRect = V_FillRect8;
+        V_DrawNumPatch = FUNC_V_DrawNumPatch;
+        V_DrawBackground = FUNC_V_DrawBackground;
+        V_PlotPixel = V_PlotPixel8;
+        V_DrawLine = WRAP_V_DrawLine;
+        current_videomode = VID_MODE8_WIDE;
+        //while (1);
+        break;
     case VID_MODE8:
+        gfxSetWide(false);
+        gfxSet3D(true);
       lprintf(LO_INFO, "V_InitMode: using 8 bit video mode\n");
       V_CopyRect = FUNC_V_CopyRect;
       V_FillRect = V_FillRect8;
@@ -896,7 +917,8 @@ video_mode_t V_GetMode(void) {
 //
 int V_GetModePixelDepth(video_mode_t mode) {
   switch (mode) {
-    case VID_MODE8: return 1;
+    case VID_MODE8:
+    case VID_MODE8_WIDE: return 1;
     case VID_MODE15: return 2;
     case VID_MODE16: return 2;
     case VID_MODE32: return 4;
@@ -909,7 +931,8 @@ int V_GetModePixelDepth(video_mode_t mode) {
 //
 int V_GetNumPixelBits(void) {
   switch (current_videomode) {
-    case VID_MODE8: return 8;
+    case VID_MODE8:
+    case VID_MODE8_WIDE: return 8;
     case VID_MODE15: return 15;
     case VID_MODE16: return 16;
     case VID_MODE32: return 32;

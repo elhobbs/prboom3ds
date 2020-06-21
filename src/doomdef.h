@@ -114,7 +114,7 @@ typedef enum {
 #define MAX_SCREENHEIGHT 192
 #else
 #ifdef ARM11
-#define MAX_SCREENWIDTH  400
+#define MAX_SCREENWIDTH  800
 #define MAX_SCREENHEIGHT 240
 #else
 // proff 08/17/98: Changed for high-res

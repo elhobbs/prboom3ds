@@ -1,1 +1,52 @@
-﻿  make[1]: Nothing to be done for 'all'.
+﻿  ds_vid.c
+  arm-none-eabi-gcc -MMD -MP -MF /c/devl/prboom3ds/build/ds_vid.d -g -Wall -mword-relocations -flto -ffunction-sections -fdata-sections -march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft -O2 -I/c/devl/prboom3ds/include -I/c/devl/prboom3ds/src -I/c/devl/prboom3ds/arm9/include -I/c/devl/prboom3ds/arm11/include -I/c/devl/prboom3ds/helix/fixpt/pub -I/c/devl/prboom3ds/khax -I/opt/devkitpro/libctru/include -I/c/devl/prboom3ds/build -DARM11 -DARM -D_3DS -DHAVE_CONFIG_H -c /c/devl/prboom3ds/arm9/source/ds_vid.c -o ds_vid.o 
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'DS_Controls':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(390):11: warning: variable 'dy' set but not used [-Wunused-but-set-variable]
+    390 |   int dx, dy;
+        |           ^~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'I_StartFrame':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(466):9: warning: type defaults to 'int' in declaration of 'viewheight_last' [-Wimplicit-int]
+    466 |  static viewheight_last = 0;
+        |         ^~~~~~~~~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(467):9: warning: type defaults to 'int' in declaration of 'hud_displayed_last' [-Wimplicit-int]
+    467 |  static hud_displayed_last = 0;
+        |         ^~~~~~~~~~~~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(463):13: warning: unused variable 'keyboard_visible_last' [-Wunused-variable]
+    463 |  extern int keyboard_visible_last;
+        |             ^~~~~~~~~~~~~~~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'I_UpdateVideoMode':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(497):9: warning: implicit declaration of function 'I_GetModeFromString' [-Wimplicit-function-declaration]
+    497 |  mode = I_GetModeFromString(default_videomode);
+        |         ^~~~~~~~~~~~~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(506):2: warning: implicit declaration of function 'I_SetRes' [-Wimplicit-function-declaration]
+    506 |  I_SetRes();
+        |  ^~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: At top level:
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(537):6: warning: conflicting types for 'I_SetRes'
+    537 | void I_SetRes(void)
+        |      ^~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(506):2: note: previous implicit declaration of 'I_SetRes' was here
+    506 |  I_SetRes();
+        |  ^~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'I_UploadNewPalette':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(722):6: warning: unused variable 'c' [-Wunused-variable]
+    722 |  u16 c;
+        |      ^
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'copy_subscreen':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(803):10: warning: variable 'sh' set but not used [-Wunused-but-set-variable]
+    803 |  int sw, sh;
+        |          ^~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'I_InitInputs':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(889):6: warning: unused variable 'nomouse_parm' [-Wunused-variable]
+    889 |  int nomouse_parm = M_CheckParm("-nomouse");
+        |      ^~~~~~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'I_InitGraphics':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(943):7: warning: unused variable 'titlebuffer' [-Wunused-variable]
+    943 |  char titlebuffer[2048];
+        |       ^~~~~~~~~~~
+  C:/devl/prboom3ds/arm9/source/ds_vid.c: In function 'I_ScreenShot':
+  C:/devl/prboom3ds/arm9/source/ds_vid.c(514):1: warning: control reaches end of non-void function [-Wreturn-type]
+    514 | }
+        | ^
+  linking prboom3ds.elf
+  built ... prboom3ds.3dsx

@@ -544,17 +544,17 @@ void I_SetRes(void)
 	for (i = 0; i<3; i++) {
 		screens[i].width = SCREENWIDTH;
 		screens[i].height = SCREENHEIGHT;
-		screens[i].byte_pitch = SCREENPITCH;
-		screens[i].short_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
-		screens[i].int_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
+		screens[i].byte_pitch = 800;
+		screens[i].short_pitch = 800 / V_GetModePixelDepth(VID_MODE16);
+		screens[i].int_pitch = 800 / V_GetModePixelDepth(VID_MODE32);
 	}
 
 	// statusbar
 	screens[4].width = SCREENWIDTH;
 	screens[4].height = (ST_SCALED_HEIGHT + 1);
-	screens[4].byte_pitch = SCREENPITCH;
-	screens[4].short_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE16);
-	screens[4].int_pitch = SCREENPITCH / V_GetModePixelDepth(VID_MODE32);
+	screens[4].byte_pitch = 800;
+	screens[4].short_pitch = 800 / V_GetModePixelDepth(VID_MODE16);
+	screens[4].int_pitch = 800 / V_GetModePixelDepth(VID_MODE32);
 
 	// subscreen
 	screens[5].width = 320;
@@ -593,6 +593,9 @@ int I_GetModeFromString(const char *modestr)
 	}
 	else if (!stricmp(modestr, "OpenGL")) {
 		mode = VID_MODEGL;
+	}
+	else if (!stricmp(modestr, "Wide")) {
+		mode = VID_MODE8_WIDE;
 	}
 	else {
 		mode = VID_MODE8;
@@ -758,17 +761,26 @@ static void I_UploadNewPalette(int pal)
 }
 
 void copy_screen(int side) {
-	u8* bufAdr = gfxGetFramebuffer(GFX_TOP, side, NULL, NULL);
+	u16 width, height;
+	u8* bufAdr = gfxGetFramebuffer(GFX_TOP, side, &height, &width);
 	byte *src;
-	int w, h;
+	int w, h, pitch;
 	src = screens[0].data;
+	pitch = screens[0].byte_pitch;
 
-	for (w = 0; w<400; w++)
+	/*if (gfxIsWide()) {
+		printf("WIDE %d %d - %d %d\n", width, height, SCREENWIDTH, SCREENHEIGHT);
+	}
+	else {
+		printf("not wide %d %d - %d %d\n", width, height, SCREENWIDTH, SCREENHEIGHT);
+	}*/
+
+	for (w = 0; w<width; w++)
 	{
-		for (h = 0; h<240; h++)
+		for (h = 0; h<height; h++)
 		{
-			u32 v = (w*240 + h) * 3;
-			u32 v1 = ((239 - h) * 400 + w);
+			u32 v = (w*height + h) * 3;
+			u32 v1 = ((height - 1 - h) * pitch + w);
 			bufAdr[v] = pal3ds[src[v1] * 3 + 0];
 			bufAdr[v + 1] = pal3ds[src[v1] * 3 + 1];
 			bufAdr[v + 2] = pal3ds[src[v1] * 3 + 2];
@@ -776,7 +788,7 @@ void copy_screen(int side) {
 	}
 }
 
-enum automapmode_e automapmode; // Mode that the automap is in
+extern enum automapmode_e automapmode; // Mode that the automap is in
 
 #define	automapactive ((automapmode & am_active) != 0)
 extern boolean automapontop;

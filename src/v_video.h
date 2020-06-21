@@ -117,6 +117,7 @@ typedef enum {
   VID_MODE15,
   VID_MODE16,
   VID_MODE32,
+  VID_MODE8_WIDE,
   VID_MODEGL,
   VID_MODEMAX,
   VID_max = 0xffffffffL

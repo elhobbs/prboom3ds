@@ -660,7 +660,7 @@ void R_RenderPlayerView(player_t* player)
 	angle_t ang = 0;
 	void copy_screen(int side);
 
-	if (*slider > 0.0f/* && !MenuActive*/) {
+	if (*slider > 0.0f && !gfxIsWide()/* && !MenuActive*/) {
 		ang = (slideamt * ANG90 / 18.0f);
 		if (renderframe) {
 			ang = -ang;

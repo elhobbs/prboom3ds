@@ -309,7 +309,7 @@ drawagain:
 
 	HU_Drawer();
 	if (viewheight == SCREENHEIGHT) {
-		SCREENWIDTH = 400;
+		SCREENWIDTH = gfxIsWide() ? 800 : 400;
 	}
   }
 
