@@ -35,21 +35,21 @@ export	OUTPUT_FORMAT	?= 3dsx
 #---------------------------------------------------------------------------------
 ARCH	:=	-march=armv6k -mtune=mpcore -mfloat-abi=hard -mtp=soft
 
-CFLAGS2	:=	-g -Wall -O2 -mword-relocations -save-temps \
+CFLAGS2	:=	-g -Wall -Ofast -flto -fgraphite-identity -floop-nest-optimize -fipa-pta -fno-semantic-interposition -fno-common -fno-signed-zeros -fno-trapping-math -fassociative-math -freciprocal-math -fno-math-errno -ffinite-math-only -fno-rounding-math -fno-signaling-nans -fcx-limited-range -fexcess-precision=fast -fdevirtualize-at-ltrans -mword-relocations -save-temps \
 			-fomit-frame-pointer -ffast-math \
 			$(ARCH)
 
-CFLAGS	:=	-g -Wall -mword-relocations -flto \
+CFLAGS	:=	-g -Wall -mword-relocations -flto -fipa-pta -fno-semantic-interposition -fno-common -fno-signed-zeros -fno-trapping-math -fassociative-math -freciprocal-math -fno-math-errno -ffinite-math-only -fno-rounding-math -fno-signaling-nans -fcx-limited-range -fexcess-precision=fast -fdevirtualize-at-ltrans  \
 			-ffunction-sections \
 			-fdata-sections \
 			$(ARCH) \
-			-O2
+			-Ofast -flto -fgraphite-identity -floop-nest-optimize
 
 CFLAGS3	:=	-g -Wall -mword-relocations \
 			-ffunction-sections \
 			-fdata-sections \
 			$(ARCH) \
-			-O0
+			-Ofast -flto -fgraphite-identity -floop-nest-optimize -fipa-pta -fno-semantic-interposition -fno-common -fno-signed-zeros -fno-trapping-math -fassociative-math -freciprocal-math -fno-math-errno -ffinite-math-only -fno-rounding-math -fno-signaling-nans -fcx-limited-range -fexcess-precision=fast -fdevirtualize-at-ltrans
 
 CFLAGS	+=	$(INCLUDE) -DARM11 -DARM -D_3DS -DHAVE_CONFIG_H
 
