@@ -87,6 +87,8 @@
 #include "r_demo.h"
 #include "r_fps.h"
 
+#include "3ds.h"
+
 #define SAVEGAMESIZE  0x20000
 #define SAVESTRINGSIZE  24
 
@@ -292,6 +294,61 @@ static inline signed short fudgea(signed short b)
 
 int weapon_cycle(int next);
 
+// For 3DS, add analog support
+static boolean isKeyAnalog(int key)
+{
+  return (key >= KEYD_CSTICK_RIGHT) && (key <= KEYD_CPAD_DOWN);
+}
+
+static float getKeyAnalog(int key)
+{
+  circlePosition pos;
+  s16 val;
+  switch (key)
+  {
+    case KEYD_CPAD_RIGHT:
+      hidCircleRead(&pos);
+      val = pos.dx;
+      break;
+    case KEYD_CPAD_LEFT:
+      hidCircleRead(&pos);
+      val = -pos.dx;
+      break;
+    case KEYD_CPAD_UP:
+      hidCircleRead(&pos);
+      val = pos.dy;
+      break;
+    case KEYD_CPAD_DOWN:
+      hidCircleRead(&pos);
+      val = -pos.dy;
+      break;
+    case KEYD_CSTICK_RIGHT:
+      hidCstickRead(&pos);
+      val = pos.dx;
+      break;
+    case KEYD_CSTICK_LEFT:
+      hidCstickRead(&pos);
+      val = -pos.dx;
+      break;
+    case KEYD_CSTICK_UP:
+      hidCstickRead(&pos);
+      val = pos.dy;
+      break;
+    case KEYD_CSTICK_DOWN:
+      hidCstickRead(&pos);
+      val = -pos.dy;
+      break;
+    default:
+      return 0.0f;
+  }
+  float fval = ((float) val) / 150.0f;
+  if (fval < 0.0f)
+    fval = 0.0f;
+  else if (fval > 1.0f)
+    fval = 1.0f;
+  return fval;
+}
+
 void G_BuildTiccmd(ticcmd_t* cmd)
 {
   boolean strafe;
@@ -338,9 +395,20 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   if (strafe)
     {
       if (gamekeydown[key_right])
-        side += sidemove[speed];
+      {
+        // 3DS - if this 'key' is actually analog, use the analog value instead
+        if (isKeyAnalog(key_right))
+          side += (int) ((float) sidemove[speed] * getKeyAnalog(key_right));
+        else
+          side += sidemove[speed];
+      }
       if (gamekeydown[key_left])
-        side -= sidemove[speed];
+      {
+        if (isKeyAnalog(key_left))
+          side -= (int) ((float) sidemove[speed] * getKeyAnalog(key_left));
+        else
+          side -= sidemove[speed];
+      }
       if (joyxmove > 0)
         side += sidemove[speed];
       if (joyxmove < 0)
@@ -349,9 +417,19 @@ void G_BuildTiccmd(ticcmd_t* cmd)
   else
     {
       if (gamekeydown[key_right])
-        cmd->angleturn -= angleturn[tspeed];
+      {
+        if (isKeyAnalog(key_right))
+          cmd->angleturn -= (int) ((float) angleturn[speed] * getKeyAnalog(key_right));
+        else
+          cmd->angleturn -= angleturn[tspeed];
+      }
       if (gamekeydown[key_left])
-        cmd->angleturn += angleturn[tspeed];
+      {
+        if (isKeyAnalog(key_left))
+          cmd->angleturn += (int) ((float) angleturn[speed] * getKeyAnalog(key_left));
+        else
+          cmd->angleturn += angleturn[tspeed];
+      }
       if (joyxmove > 0)
         cmd->angleturn -= angleturn[tspeed];
       if (joyxmove < 0)
@@ -359,17 +437,37 @@ void G_BuildTiccmd(ticcmd_t* cmd)
     }
 
   if (gamekeydown[key_up])
-    forward += forwardmove[speed];
+  {
+    if (isKeyAnalog(key_up))
+      forward += (int) ((float) forwardmove[speed] * getKeyAnalog(key_up));
+    else
+      forward += forwardmove[speed];
+  }
   if (gamekeydown[key_down])
-    forward -= forwardmove[speed];
+  {
+    if (isKeyAnalog(key_down))
+      forward -= (int) ((float) forwardmove[speed] * getKeyAnalog(key_down));
+    else
+      forward -= forwardmove[speed];
+  }
   if (joyymove < 0)
     forward += forwardmove[speed];
   if (joyymove > 0)
     forward -= forwardmove[speed];
   if (gamekeydown[key_straferight])
-    side += sidemove[speed];
+  {
+    if (isKeyAnalog(key_straferight))
+      side += (int) ((float) sidemove[speed] * getKeyAnalog(key_straferight));
+    else
+      side += sidemove[speed];
+  }
   if (gamekeydown[key_strafeleft])
-    side -= sidemove[speed];
+  {
+    if (isKeyAnalog(key_strafeleft))
+      side -= (int) ((float) sidemove[speed] * getKeyAnalog(key_strafeleft));
+    else
+      side -= sidemove[speed];
+  }
 
     // buttons
   cmd->chatchar = HU_dequeueChatChar();
